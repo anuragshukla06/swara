@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="operator_array">
+        <item>BSNL</item>
+        <item>JIO</item>
+        <item>AIRTEL</item>
+        <item>VODAFONE</item>
+        <item>RELIANCE CDMA</item>
+        <item>RELIANCE GSM</item>
+        <item>AIRCEL</item>
+        <item>IDEA</item>
+    </string-array>
+</resources>
