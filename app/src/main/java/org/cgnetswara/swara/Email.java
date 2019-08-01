@@ -19,4 +19,19 @@ public class Email {
                 audioDuration = 0;
             }
             */
+
+    //********************************************************************************
+    /*code to iterate over sp entries
+    Map<String,?> paths = sp.getAll();
+
+        for(Map.Entry<String,?> row : paths.entrySet()){
+            Log.d("map values",row.getKey() + ": " + row.getValue().toString());
+            //*****************************************
+            //Code to remove sp entries
+            editor.remove(row.getKey());
+            editor.commit();
+            //*****************************************
+        }
+    */
+    //********************************************************************************
 }
