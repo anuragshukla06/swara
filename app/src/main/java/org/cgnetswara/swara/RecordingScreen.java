@@ -1,20 +1,25 @@
 package org.cgnetswara.swara;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Chronometer;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
 public class RecordingScreen extends AppCompatActivity {
     boolean recordState = true;
@@ -23,10 +28,13 @@ public class RecordingScreen extends AppCompatActivity {
     ImageButton playButton;
     ImageButton clearButton;
     ImageButton acceptButton;
+    Chronometer chronometer;
     RecMicToMp3 mRecMicToMp3;
     MediaPlayer audioPlayer;
     String path;
     long audioDuration;
+    SharedPreferences sp;
+    public static final String MyPREFERENCES = "MyPrefs" ;
     String mMainDir;
 
     @Override
@@ -38,17 +46,22 @@ public class RecordingScreen extends AppCompatActivity {
         playButton=findViewById(R.id.imageButton5);
         clearButton=findViewById(R.id.imageButton4);
         acceptButton=findViewById(R.id.imageButton3);
+        chronometer=findViewById(R.id.chronometer);
 
         recordButton.setVisibility(View.VISIBLE);
         playButton.setVisibility(View.INVISIBLE);
         clearButton.setVisibility(View.INVISIBLE);
         acceptButton.setVisibility(View.INVISIBLE);
+        chronometer.setVisibility(View.INVISIBLE);
     }
 
     public void toggleRecording(View view) {//first step in recording
         Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibe.vibrate(100);
         if(recordState){
+            chronometer.setBase(SystemClock.elapsedRealtime());
+            chronometer.start();
+            chronometer.setVisibility(View.VISIBLE);
             recordButton.setImageResource(R.drawable.stopbtn);
             recordState = false;
             String exstPath = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -62,6 +75,7 @@ public class RecordingScreen extends AppCompatActivity {
             mRecMicToMp3.start();
         }
         else{
+            chronometer.stop();
             recordButton.setVisibility(View.INVISIBLE);
             recordButton.setImageResource(R.drawable.recordbtn);
             playButton.setVisibility(View.VISIBLE);
@@ -104,6 +118,8 @@ public class RecordingScreen extends AppCompatActivity {
             playButton.setImageResource(R.drawable.pause);
             playState=false;
             audioPlayer = new MediaPlayer();
+            chronometer.setBase(SystemClock.elapsedRealtime());
+            chronometer.start();
             try {
                 audioPlayer.setDataSource("file://"+path);
                 audioPlayer.prepare();
@@ -114,7 +130,6 @@ public class RecordingScreen extends AppCompatActivity {
                         playButton.setImageResource(R.drawable.play);
                         playState=true;
                         stopPlaying();
-                        //chronometer.stop();
                     }
                 });
 
@@ -127,6 +142,8 @@ public class RecordingScreen extends AppCompatActivity {
         }
         else{
             audioPlayer.stop();
+            playButton.setImageResource(R.drawable.play);
+            playState=true;
             stopPlaying();
         }
     }
@@ -135,6 +152,8 @@ public class RecordingScreen extends AppCompatActivity {
         if(audioPlayer!=null) {
             audioPlayer.release();
         }
+        chronometer.stop();
+        chronometer.setBase(SystemClock.elapsedRealtime());
     }
 
     public void onAccept(View view) {
@@ -146,6 +165,18 @@ public class RecordingScreen extends AppCompatActivity {
         acceptButton.setVisibility(View.INVISIBLE);
         recordState=true;
         stopPlaying();
-        //
+        //saving details in shared prefs for audio to be mailed
+        sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(path, ""+audioDuration);
+        editor.apply();
+        //********************************************************************************
+        /*code to iterate over sp entries*/
+        Map<String,?> paths = sp.getAll();
+
+        for(Map.Entry<String,?> row : paths.entrySet()){
+            Log.d("map values",row.getKey() + ": " + row.getValue().toString());
+        }
+        //********************************************************************************
     }
 }
