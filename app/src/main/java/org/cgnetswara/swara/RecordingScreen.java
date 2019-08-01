@@ -84,21 +84,6 @@ public class RecordingScreen extends AppCompatActivity {
             clearButton.setVisibility(View.VISIBLE);
             acceptButton.setVisibility(View.VISIBLE);
             mRecMicToMp3.stop();
-            MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-
-            FileInputStream inputStream;
-            try {
-                inputStream = new FileInputStream(path);
-                metaRetriever.setDataSource(inputStream.getFD());
-                inputStream.close();
-
-                Long durationms = Long.parseLong(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-                audioDuration = durationms / 1000;
-
-            } catch (Exception e) {
-                Log.e("Metadata error", e.toString());
-                audioDuration = 0;
-            }
         }
     }
 
@@ -165,7 +150,7 @@ public class RecordingScreen extends AppCompatActivity {
         acceptButton.setVisibility(View.INVISIBLE);
         recordState=true;
         stopPlaying();
-        //saving details in shared prefs for audio to be mailed
+        //saving details in shared prefs for audio and/or photo to be mailed
         sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(path, ""+audioDuration);
@@ -178,5 +163,9 @@ public class RecordingScreen extends AppCompatActivity {
             Log.d("map values",row.getKey() + ": " + row.getValue().toString());
         }
         //********************************************************************************
+    }
+
+    public void addPhoto(View view) {
+
     }
 }
