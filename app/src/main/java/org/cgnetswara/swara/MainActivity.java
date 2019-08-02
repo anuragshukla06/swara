@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
                     switchOptions(true);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString("phone_number",s.toString());
-                    Log.d("msg",s.toString());
                     editor.apply();
                 }
             }

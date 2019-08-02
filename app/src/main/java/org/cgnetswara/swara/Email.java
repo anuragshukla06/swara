@@ -1,7 +1,14 @@
 package org.cgnetswara.swara;
 
-public class Email {
+import android.os.AsyncTask;
+
+public class Email extends AsyncTask<String,Void,Void> {
+    @Override
+    protected Void doInBackground(String... parts) {
+        return null;
+    }
     /*
+
             //Code to retrieve Metadata of audio
             MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
 
