@@ -1,11 +1,35 @@
 package org.cgnetswara.swara;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
-public class Email extends AsyncTask<String,Void,Void> {
+import javax.mail.AuthenticationFailedException;
+import javax.mail.MessagingException;
+
+public class Email extends AsyncTask<String, Void, Boolean> {
+
+    Mail mail;
+
     @Override
-    protected Void doInBackground(String... parts) {
-        return null;
+    protected Boolean doInBackground(String... parts) {
+        mail = new Mail("cgnetmail2019@gmail.com","QWERTYCGTECH123");
+        String[] toArr = {"rulebreakerdude@gmail.com"}; // multiple email addresses can be added here
+        mail.setTo(toArr);
+        mail.setFrom("cgnetmail2019@gmail.com");
+        mail.setSubject("Test Mail's Subject");
+        mail.setBody("Test Mail's Body");
+        try {
+            if (mail.send()) {
+                return true;
+            }
+        } catch (AuthenticationFailedException e) {
+            e.printStackTrace();
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
     /*
 

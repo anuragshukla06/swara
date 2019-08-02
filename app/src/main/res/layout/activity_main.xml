@@ -50,6 +50,7 @@
         android:layout_marginRight="32dp"
         android:text="किसी व्यक्ति विशेष का संदेश सुनें"
         android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Title"
+        android:onClick="option2ListenSpecific"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
