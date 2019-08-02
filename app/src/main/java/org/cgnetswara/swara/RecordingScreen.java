@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Chronometer;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,43 +29,55 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
-public class RecordingScreen extends AppCompatActivity {
+public class RecordingScreen extends AppCompatActivity{
     boolean recordState = true;
     boolean playState = true;
-    ImageButton recordButton;
-    ImageButton playButton;
-    ImageButton clearButton;
-    ImageButton acceptButton;
+    ImageButton recordButton, deleteBitmap, playButton, clearButton, acceptButton;
     Chronometer chronometer;
     RecMicToMp3 mRecMicToMp3;
     MediaPlayer audioPlayer;
     String path;
     long audioDuration;
     SharedPreferences sp;
-    public static final String MyPREFERENCES = "MyPrefs" ;
+    public static final String MyPREFERENCES = "RecordingScreenPrefs" ;
     public static final int PICK_IMAGE = 1;
     private Bitmap bitmap = null;
     ImageView photoAttach;
     Uri selectedImageUri;
+    EditText phoneNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //Declarations and instantiations
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recording_screen);
+        initialiseUI();
+    }
 
+    public void initialiseUI(){
         recordButton=findViewById(R.id.imageButton);
         playButton=findViewById(R.id.imageButton5);
         clearButton=findViewById(R.id.imageButton4);
         acceptButton=findViewById(R.id.imageButton3);
         chronometer=findViewById(R.id.chronometer);
         photoAttach=findViewById(R.id.imageView2);
+        phoneNumber=findViewById(R.id.editText3);
+        deleteBitmap=findViewById(R.id.imageButton6);
 
         recordButton.setVisibility(View.VISIBLE);
+        deleteBitmap.setVisibility(View.INVISIBLE);
         playButton.setVisibility(View.INVISIBLE);
         clearButton.setVisibility(View.INVISIBLE);
         acceptButton.setVisibility(View.INVISIBLE);
         chronometer.setVisibility(View.INVISIBLE);
+        Intent data=getIntent();
+        phoneNumber.setText(data.getStringExtra("phone_number"));
+        try {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        } catch(NullPointerException e){
+            e.printStackTrace();
+        }
+
     }
 
     public void toggleRecording(View view) {
@@ -160,16 +173,22 @@ public class RecordingScreen extends AppCompatActivity {
         acceptButton.setVisibility(View.INVISIBLE);
         recordState=true;
         stopPlaying();
+        resetBitmap();
     }
 
     public void onAccept(View view) {
-        //Resetting things first
-        vibrateAndSetViews();
-        //saving details in shared prefs for audio and/or photo to be mailed
-        sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString(path, ""+audioDuration+","+selectedImageUri);
-        editor.apply();
+        if(phoneNumber.getText().toString().length()==10) {
+            //Resetting things first
+            vibrateAndSetViews();
+            //saving details in shared prefs for audio and/or photo to be mailed
+            sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString(path, ""+ phoneNumber.getText().toString()+ "," + audioDuration + "," + selectedImageUri);
+            editor.apply();
+        }
+        else{
+            phoneNumber.setError("कृपया 10 अंकों का फोन नंबर दर्ज करें और ऑपरेटर का चयन करें !");
+        }
     }
 
     public void addPhoto(View view) {
@@ -195,6 +214,7 @@ public class RecordingScreen extends AppCompatActivity {
                 }
             }
             photoAttach.setImageBitmap(bitmap);
+            deleteBitmap.setVisibility(View.VISIBLE);
         }
     }
 
@@ -202,5 +222,14 @@ public class RecordingScreen extends AppCompatActivity {
         int height = input.getHeight();
         int width = input.getWidth();
         return Bitmap.createScaledBitmap(input,  width/2, height/2, false);
+    }
+
+    public void resetBitmap(View view) {
+        resetBitmap();
+    }
+    public void resetBitmap(){
+        bitmap = null;
+        photoAttach.setImageBitmap(bitmap);
+        deleteBitmap.setVisibility(View.INVISIBLE);
     }
 }

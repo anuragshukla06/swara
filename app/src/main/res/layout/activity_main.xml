@@ -143,7 +143,6 @@
             android:layout_height="wrap_content"
             android:entries="@array/operator_array"
             android:spinnerMode="dropdown"
-            android:text="+91"
             tools:layout_editor_absoluteX="8dp"
             tools:layout_editor_absoluteY="596dp" />
     </LinearLayout>
