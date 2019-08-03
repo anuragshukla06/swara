@@ -26,6 +26,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.Map;
 
@@ -44,6 +45,7 @@ public class RecordingScreen extends AppCompatActivity{
     private Bitmap bitmap = null;
     ImageView photoAttach;
     Uri selectedImageUri;
+    String imageFilePath="";
     EditText phoneNumber;
 
     @Override
@@ -178,13 +180,14 @@ public class RecordingScreen extends AppCompatActivity{
 
     public void onAccept(View view) {
         if(phoneNumber.getText().toString().length()==10) {
-            //Resetting things first
-            vibrateAndSetViews();
             //saving details in shared prefs for audio and/or photo to be mailed
             sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sp.edit();
-            editor.putString(path, ""+ phoneNumber.getText().toString()+ "," + audioDuration + "," + selectedImageUri);
+            editor.putString(path, ""+ phoneNumber.getText().toString()+ "," + imageFilePath+",");
+            Log.d(path, ""+ phoneNumber.getText().toString()+ "," + imageFilePath+",");
             editor.apply();
+            //Resetting things Now
+            vibrateAndSetViews();
         }
         else{
             phoneNumber.setError("कृपया 10 अंकों का फोन नंबर दर्ज करें और ऑपरेटर का चयन करें !");
@@ -201,8 +204,14 @@ public class RecordingScreen extends AppCompatActivity{
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
+        //imageFilePath is stored to transfer and selectedImageUri used to display on UI
         if (requestCode == PICK_IMAGE && resultCode == RESULT_OK) {
             selectedImageUri = data.getData();
+            try {
+                imageFilePath=PathUtil.getPath(getApplicationContext(),selectedImageUri);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
             } catch (IOException e) {
@@ -231,5 +240,6 @@ public class RecordingScreen extends AppCompatActivity{
         bitmap = null;
         photoAttach.setImageBitmap(bitmap);
         deleteBitmap.setVisibility(View.INVISIBLE);
+        imageFilePath="";
     }
 }

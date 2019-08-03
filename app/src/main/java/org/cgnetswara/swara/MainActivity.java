@@ -33,13 +33,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private int MY_PERMISSIONS_REQUESTS = 0;
     SharedPreferences sp;
+    SharedPreferences sp2;
     public static final String MyPREFERENCES = "MainActivityPrefs" ;
+    public static final String RecordingScreenPrefs = "RecordingScreenPrefs" ;
     EditText phoneNumber;
     Spinner operator;
     Button op1,op2,op3,op4;
@@ -187,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void option2ListenSpecific(View view) {
-        Email asyncTask= new Email();
+        Email asyncTask = new Email(getApplicationContext());
         asyncTask.execute();
     }
 }
