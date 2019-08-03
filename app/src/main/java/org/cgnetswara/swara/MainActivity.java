@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -129,6 +130,20 @@ public class MainActivity extends AppCompatActivity {
             givePermissions();
         }
         initialiseUI();
+
+        //Runnable
+        final Handler mHandler=new Handler();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Email asyncTask = new Email(getApplicationContext());
+                asyncTask.execute();
+                mHandler.postDelayed(this, 5000);
+                Log.d("Noting instance ","of runnable");
+            }
+        };
+        mHandler.post(runnable);
     }
 
     public void option1Recording(View view) {
@@ -192,5 +207,11 @@ public class MainActivity extends AppCompatActivity {
     public void option2ListenSpecific(View view) {
         Email asyncTask = new Email(getApplicationContext());
         asyncTask.execute();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+
     }
 }

@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -188,6 +189,7 @@ public class RecordingScreen extends AppCompatActivity{
             editor.apply();
             //Resetting things Now
             vibrateAndSetViews();
+            Toast.makeText(getBaseContext(), "आपका संदेश भेज दिया जाएगा", Toast.LENGTH_LONG).show();
         }
         else{
             phoneNumber.setError("कृपया 10 अंकों का फोन नंबर दर्ज करें और ऑपरेटर का चयन करें !");
