@@ -2,10 +2,15 @@ package org.cgnetswara.swara;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.io.FileInputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import javax.mail.AuthenticationFailedException;
@@ -16,14 +21,20 @@ public class Email extends AsyncTask<Void, Void, Boolean> {
     Mail mail;
     String audioLocation,phoneNumber,photoLocation;
     SharedPreferences sp;
+    Context context;
+    int audioDuration;
+    String subject;
+    String body;
     public static final String RecordingScreenPrefs = "RecordingScreenPrefs" ;
 
     public Email(Context context){
+        this.context=context;
         sp=context.getSharedPreferences(RecordingScreenPrefs,Context.MODE_PRIVATE);
     }
 
     @Override
     protected Boolean doInBackground(Void... voids) {
+
 
         SharedPreferences.Editor editor = sp.edit();
         Map<String, ?> paths = sp.getAll();
@@ -38,13 +49,34 @@ public class Email extends AsyncTask<Void, Void, Boolean> {
             else{
                 photoLocation="";
             }
+            MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+
+            FileInputStream inputStream;
+            try {
+                inputStream = new FileInputStream(audioLocation);
+                metaRetriever.setDataSource(inputStream.getFD());
+                inputStream.close();
+
+                Long durationms = Long.parseLong(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+                audioDuration = (int)(durationms / 1000);
+
+            } catch (Exception e) {
+                Log.e("Metadata error", e.toString());
+                audioDuration = 0;
+            }
+            String pattern = "yyyy-MM-dd hh:mm:ss";
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+            String date = simpleDateFormat.format(new Date());
+            String[] toArr = {"rulebreakerdude@gmail.com"}; // multiple email addresses can be added here
+            subject = "Swara-Main|app|" + audioDuration + "|DRAFT|" + phoneNumber + "|" + "unk" + "|" + date + "|PUBLIC";
+            body=getBody(phoneNumber,date,audioDuration,"unk");
 
             mail = new Mail("cgnetmail2019@gmail.com", "QWERTYCGTECH123");
-            String[] toArr = {"rulebreakerdude@gmail.com"}; // multiple email addresses can be added here
             mail.setTo(toArr);
             mail.setFrom("cgnetmail2019@gmail.com");
-            mail.setSubject("Test Mail's Subject: " + phoneNumber);
-            mail.setBody("Test Mail's Body");
+            mail.setSubject(subject);
+            mail.setBody(body);
+
 
             //Attachment section
             try {
@@ -79,6 +111,32 @@ public class Email extends AsyncTask<Void, Void, Boolean> {
         }
         return false;
     }
+    private String getBody(String phoneNumber, String time, int length, String location) {
+        String body;
+        body =  "******************************************************************************\n" +
+                "SERVER/सर्वर                        : Swara-Main\n" +
+                "******************************************************************************\n" +
+                "POST ID/पोस्ट क्र                       : unk" + "\n" +
+                "******************************************************************************\n" +
+                "CALLER/नंबर                         : " + phoneNumber + "\n" +
+                "******************************************************************************\n" +
+                "TIME STAMP/समय                  : " + time + "\n" +
+                "******************************************************************************\n" +
+                "NAME OF CALLER/फ़ोन करने वाले का नाम     :\n" +
+                "******************************************************************************\n" +
+                "CALL LOCATION/कॉल कहाँ से आई        :\n" +
+                "******************************************************************************\n" +
+                "TEL CIRC/ टेलिकॉम सर्किल                : "+ location + "\n" +
+                "******************************************************************************\n" +
+                "LNGTH/अवधी                              : " + length + "\n" +
+                "******************************************************************************\n" +
+                "STATUS/स्थिति                                           : DRAFT\n" +
+                "******************************************************************************\n" +
+                "TEXT SUMMARY/   सन्देश                  :";
+
+        return body;
+    }
+}
 
     /*
 
@@ -114,4 +172,4 @@ public class Email extends AsyncTask<Void, Void, Boolean> {
         }
     */
     //********************************************************************************
-}
+
