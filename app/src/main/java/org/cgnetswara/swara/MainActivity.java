@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 Email asyncTask = new Email(getApplicationContext());
                 asyncTask.execute();
                 mHandler.postDelayed(this, 5000);
-                Log.d("Noting instance ","of runnable");
+                //Log.d("Noting instance ","of runnable");
             }
         };
         mHandler.post(runnable);
@@ -213,5 +213,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
 
+    }
+
+    public void option3ListenStories(View view) {
+        Intent storyList=new Intent(this,StoryListView.class);
+        storyList.putExtra("phone_number",phoneNumber.getText().toString());
+        startActivity(storyList);
     }
 }

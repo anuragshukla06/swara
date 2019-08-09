@@ -1,7 +1,6 @@
 package org.cgnetswara.swara;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,11 +14,10 @@ import java.util.List;
 public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHolder> {
 
     private List<StoryModel> storyList;
-    private Typeface Hindi;
 
     public class StoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        final TextView textViewTitle, textViewShortDesc, textViewDatetime;
+        final TextView textViewTitle, textViewDatetime;
         final ImageButton imageButtonShare;
         final StoryAdapter storyAdapter;
         private final Context context_adapter;
@@ -34,7 +32,6 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             super(itemView);
             context_adapter=itemView.getContext();
             textViewTitle = (TextView)itemView.findViewById(R.id.piDesc);
-            textViewShortDesc = (TextView)itemView.findViewById(R.id.piText);
             imageButtonShare=itemView.findViewById(R.id.piShare);
             textViewDatetime = (TextView)itemView.findViewById(R.id.piDatetime);
             itemView.setOnClickListener(this);
@@ -63,7 +60,6 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
 
     StoryAdapter(Context context, List<StoryModel> storyList) {
         this.storyList = storyList;
-        Hindi=Typeface.createFromAsset(context.getAssets(), "fonts/MANGAL.TTF");
     }
 
     @Override
@@ -76,21 +72,19 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     @Override
     public void onBindViewHolder(StoryViewHolder holder, int position) {
         StoryModel story = storyList.get(position);
-        holder.textViewTitle.setTypeface(Hindi);
-        holder.textViewShortDesc.setTypeface(Hindi);
         String desc, text;
 
-        if(story.getDesc().length()>40){
-            desc=story.getDesc().substring(0,36)+"...";
+        if(story.getDesc().length()>100){
+            desc=story.getDesc().substring(0,100)+"...";
         }
         else desc=story.getDesc();
         holder.textViewTitle.setText(desc);
 
-        if(story.getText().length()>100){
-            text=story.getText().substring(0,96)+"...";
+        if(story.getText().length()>30){
+            text=story.getText().substring(0,30)+"...";
         }
         else text=story.getText();
-        holder.textViewShortDesc.setText(text);
+
 
         holder.textViewDatetime.setText(story.getDatetime());
     }

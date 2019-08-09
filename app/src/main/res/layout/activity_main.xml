@@ -68,6 +68,7 @@
         android:layout_marginRight="32dp"
         android:text="संदेशों को सुनें और दूसरों को भेजें"
         android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Title"
+        android:onClick="option3ListenStories"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
