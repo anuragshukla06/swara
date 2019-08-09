@@ -21,7 +21,7 @@
         app:srcCompat="@null" />
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/imageButtonRecording"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -50,7 +50,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Subtitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageButton2" />
+        app:layout_constraintTop_toBottomOf="@+id/imageButtonAttachImage" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -67,7 +67,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView3">
 
         <ImageButton
-            android:id="@+id/imageButton4"
+            android:id="@+id/imageButtonClear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -78,7 +78,7 @@
             app:srcCompat="@drawable/clear" />
 
         <ImageButton
-            android:id="@+id/imageButton5"
+            android:id="@+id/imageButtonPlay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -88,7 +88,7 @@
             app:srcCompat="@drawable/play" />
 
         <ImageButton
-            android:id="@+id/imageButton3"
+            android:id="@+id/imageButtonAccept"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -115,7 +115,7 @@
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
     <ImageButton
-        android:id="@+id/imageButton2"
+        android:id="@+id/imageButtonAttachImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -152,7 +152,7 @@
             app:layout_constraintTop_toBottomOf="@+id/chronometer" />
 
         <EditText
-            android:id="@+id/editText3"
+            android:id="@+id/editTextPhoneInputRecording"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -162,7 +162,7 @@
     </LinearLayout>
 
     <ImageButton
-        android:id="@+id/imageButton6"
+        android:id="@+id/imageButtonResetBitmap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"

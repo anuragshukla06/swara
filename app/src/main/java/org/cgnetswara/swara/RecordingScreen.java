@@ -3,10 +3,7 @@ package org.cgnetswara.swara;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Environment;
@@ -21,15 +18,12 @@ import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.Map;
 
 public class RecordingScreen extends AppCompatActivity{
     boolean recordState = true;
@@ -58,14 +52,14 @@ public class RecordingScreen extends AppCompatActivity{
     }
 
     public void initialiseUI(){
-        recordButton=findViewById(R.id.imageButton);
-        playButton=findViewById(R.id.imageButton5);
-        clearButton=findViewById(R.id.imageButton4);
-        acceptButton=findViewById(R.id.imageButton3);
+        recordButton=findViewById(R.id.imageButtonRecording);
+        playButton=findViewById(R.id.imageButtonPlay);
+        clearButton=findViewById(R.id.imageButtonClear);
+        acceptButton=findViewById(R.id.imageButtonAccept);
         chronometer=findViewById(R.id.chronometer);
         photoAttach=findViewById(R.id.imageView2);
-        phoneNumber=findViewById(R.id.editText3);
-        deleteBitmap=findViewById(R.id.imageButton6);
+        phoneNumber=findViewById(R.id.editTextPhoneInputRecording);
+        deleteBitmap=findViewById(R.id.imageButtonResetBitmap);
 
         recordButton.setVisibility(View.VISIBLE);
         deleteBitmap.setVisibility(View.INVISIBLE);
