@@ -8,17 +8,12 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
-import android.os.Vibrator;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -34,7 +29,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -147,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void option1Recording(View view) {
-        Intent goToRecordingScreen=new Intent(this,RecordingScreen.class);
+        Intent goToRecordingScreen=new Intent(this, RecordingScreenActivity.class);
         goToRecordingScreen.putExtra("phone_number",phoneNumber.getText().toString());
         startActivity(goToRecordingScreen);
     }
@@ -205,8 +199,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void option2ListenSpecific(View view) {
-        Email asyncTask = new Email(getApplicationContext());
-        asyncTask.execute();
+        Intent storyList=new Intent(this, StoryListViewActivity.class);
+        storyList.putExtra("phone_number",phoneNumber.getText().toString());
+        storyList.putExtra("option","2");
+        startActivity(storyList);
     }
 
     @Override
@@ -216,8 +212,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void option3ListenStories(View view) {
-        Intent storyList=new Intent(this,StoryListView.class);
+        Intent storyList=new Intent(this, StoryListViewActivity.class);
         storyList.putExtra("phone_number",phoneNumber.getText().toString());
+        storyList.putExtra("option","3");
         startActivity(storyList);
     }
 }

@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Date;
 
-public class RecordingScreen extends AppCompatActivity{
+public class RecordingScreenActivity extends AppCompatActivity{
     boolean recordState = true;
     boolean playState = true;
     ImageButton recordButton, deleteBitmap, playButton, clearButton, acceptButton;

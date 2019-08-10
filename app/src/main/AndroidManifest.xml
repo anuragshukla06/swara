@@ -19,13 +19,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".StoryView"
+            android:name=".StoryViewActivity"
             android:parentActivityName=".MainActivity" ></activity>
         <activity
-            android:name=".StoryListView"
+            android:name=".StoryListViewActivity"
             android:parentActivityName=".MainActivity" />
         <activity
-            android:name=".RecordingScreen"
+            android:name=".RecordingScreenActivity"
             android:parentActivityName=".MainActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>

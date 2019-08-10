@@ -12,7 +12,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".StoryView">
+        tools:context=".StoryViewActivity">
 
         <TextView
             android:id="@+id/apvDesc"

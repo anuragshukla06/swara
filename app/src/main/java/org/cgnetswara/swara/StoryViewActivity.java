@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StoryView extends AppCompatActivity {
+public class StoryViewActivity extends AppCompatActivity {
 
     public static final String REQUESTTAG3 = "requesttag3";
     public static final String REQUESTTAG2 = "requesttag2";
@@ -80,6 +80,7 @@ public class StoryView extends AppCompatActivity {
         recyclerView.setAdapter(commentAdapter);
         loadComments();
     }
+
 
     public void loadComments(){
         commentList.clear();

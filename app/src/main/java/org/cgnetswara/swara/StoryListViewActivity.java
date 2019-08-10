@@ -7,6 +7,8 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -23,14 +25,17 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StoryListView extends AppCompatActivity {
+public class StoryListViewActivity extends AppCompatActivity {
     private List<StoryModel> storyList=new ArrayList<>();
     private RecyclerView recyclerView;
     private StoryAdapter storyAdapter;
     public static final String REQUESTTAG = "requesttag";
     RequestQueue requestQueue;
     StringRequest stringRequest;
+    EditText searchInput;
+    ImageButton searchButton;
     private String phoneNumber;
+    private String option;
     private int start;
     private int end;
 
@@ -38,9 +43,7 @@ public class StoryListView extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_story_list_view);
-        Intent data=getIntent();
-        phoneNumber=data.getStringExtra("phone_number");
-        recyclerView = (RecyclerView) findViewById(R.id.rView);
+        layoutManager();
         //creating adapter object and setting it to recyclerview
         storyAdapter = new StoryAdapter(this,storyList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -49,6 +52,21 @@ public class StoryListView extends AppCompatActivity {
         start=0;
         end=start+10;
         loadStorys();
+    }
+
+    public void layoutManager(){
+        Intent data=getIntent();
+        phoneNumber=data.getStringExtra("phone_number");
+        option=data.getStringExtra("option");
+        recyclerView = (RecyclerView) findViewById(R.id.rView);
+        searchInput=findViewById(R.id.editTextSearchInput);
+        searchButton=findViewById(R.id.imageButtonSearch);
+        switch(option){
+            case "3":
+                searchButton.setVisibility(View.GONE);
+                searchInput.setVisibility(View.GONE);
+                break;
+        }
     }
 
     public void loadStorys(){
