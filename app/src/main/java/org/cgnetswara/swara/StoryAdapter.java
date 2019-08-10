@@ -1,6 +1,7 @@
 package org.cgnetswara.swara;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -41,8 +42,6 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
         @Override
         public void onClick(View view) {
             int position=getLayoutPosition();
-            /*
-            // Code to go to new screen
             Intent pv = new Intent(context_adapter,StoryView.class);
 
             StoryModel story=storyList.get(position);
@@ -54,7 +53,6 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             pv.putExtra(ACCESSINGUSER,story.getAccessingUser());
 
             context_adapter.startActivity(pv);
-            */
         }
     }
 
