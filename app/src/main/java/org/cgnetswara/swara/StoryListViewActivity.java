@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -55,17 +56,22 @@ public class StoryListViewActivity extends AppCompatActivity {
     }
 
     public void layoutManager(){
-        Intent data=getIntent();
-        phoneNumber=data.getStringExtra("phone_number");
-        option=data.getStringExtra("option");
-        recyclerView = (RecyclerView) findViewById(R.id.rView);
-        searchInput=findViewById(R.id.editTextSearchInput);
-        searchButton=findViewById(R.id.imageButtonSearch);
-        switch(option){
-            case "3":
-                searchButton.setVisibility(View.GONE);
-                searchInput.setVisibility(View.GONE);
-                break;
+        try {
+            Intent data = getIntent();
+            phoneNumber = data.getStringExtra("phone_number");
+            option = data.getStringExtra("option");
+            recyclerView = (RecyclerView) findViewById(R.id.rView);
+            searchInput = findViewById(R.id.editTextSearchInput);
+            searchButton = findViewById(R.id.imageButtonSearch);
+            switch (option) {
+                case "3":
+                    searchButton.setVisibility(View.GONE);
+                    searchInput.setVisibility(View.GONE);
+                    break;
+            }
+        }catch(NullPointerException e){
+            //Intent missing
+            Log.d("Looks like:","The intent is missing");
         }
     }
 

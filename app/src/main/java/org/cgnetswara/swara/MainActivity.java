@@ -1,24 +1,36 @@
 package org.cgnetswara.swara;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.ParcelUuid;
+import android.provider.Settings;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+
+import net.vidageek.mirror.dsl.Mirror;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +39,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     EditText phoneNumber;
     Spinner operator;
     Button op1,op2,op3,op4;
+    IntentFilter mFilter;
 
     private void addPermission(List<String> permissionsList, String permission) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -124,6 +139,11 @@ public class MainActivity extends AppCompatActivity {
             givePermissions();
         }
         initialiseUI();
+
+        mFilter = new IntentFilter();
+        mFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        mFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        this.registerReceiver(bultooReceiver, mFilter);
 
         //Runnable
         final Handler mHandler=new Handler();
@@ -217,4 +237,134 @@ public class MainActivity extends AppCompatActivity {
         storyList.putExtra("option","3");
         startActivity(storyList);
     }
+
+    public static final BroadcastReceiver bultooReceiver = new BroadcastReceiver() {
+
+        private boolean mConnected = false;
+
+        private Long timeStartWhenConnected = 0L;
+
+        private String mDeviceAddress = "";
+
+        private String mDeviceName = "";
+
+        private String mFileName = "";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals("android.bluetooth.device.action.ACL_CONNECTED")) {
+                Log.e("MainActivity.Java", "Device connected");
+                mConnected = true;
+                timeStartWhenConnected = System.currentTimeMillis()/1000;
+                Log.e("MainActivity.Java", "Time when started "+timeStartWhenConnected);
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                mDeviceAddress = device.getAddress(); // MAC address
+                mDeviceName = device.getName();
+                Log.e("MainActivity.Java", mDeviceAddress + " and " + mDeviceName);
+
+            } else if (action.equals("android.bluetooth.device.action.ACL_DISCONNECTED")) {
+                mConnected = false;
+                Long clientEpochTime = System.currentTimeMillis();
+                Long timeWhenDisconnected = clientEpochTime / 1000;
+                Log.e("MainActivity.Java", "Time when disconnected " + timeWhenDisconnected);
+                Log.e("MainActivity.Java", "TIME " + (timeWhenDisconnected - timeStartWhenConnected));
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                Log.e("MainActivity.Java", "Disconnected " + device.getAddress());
+                String macAddress = getBtAddressViaReflection();
+                Log.e("MainActivity.Java", "My id " + macAddress);
+
+
+                if (device.getAddress().equals(mDeviceAddress) || (timeWhenDisconnected - timeStartWhenConnected) > 10) {
+
+                    Log.e(mDeviceAddress + " + " + mDeviceName, mFileName);
+                    String senderDeviceAddress = "";
+                    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                        try {
+                            Field mServiceField = bluetoothAdapter.getClass().getDeclaredField("mService");
+                            mServiceField.setAccessible(true);
+
+                            Object btManagerService = mServiceField.get(bluetoothAdapter);
+
+                            if (btManagerService != null) {
+                                Log.e("MainActivity.Java", "Difficult MAC address access");
+                                senderDeviceAddress = (String) btManagerService.getClass().getMethod("getAddress").invoke(btManagerService);
+
+                            } else {
+                                Log.e("MainActivity.Java", "Bluetooth manager is null");
+                            }
+                        } catch (NoSuchFieldException e) {
+                            e.printStackTrace();
+                            //throw new RuntimeException(e);
+                        } catch (NoSuchMethodException e) {
+                            e.printStackTrace();
+                            //throw new RuntimeException(e);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                            //throw new RuntimeException(e);
+                        } catch (InvocationTargetException e) {
+                            e.printStackTrace();
+                            //throw new RuntimeException(e);
+                        }
+                    } else {
+                        Log.e("MainActivity.Java", "Easily accessible MAC address");
+                        try {
+                            senderDeviceAddress = BluetoothAdapter.getDefaultAdapter().getAddress();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                    JSONObject obj = new JSONObject();
+                    try {
+                        obj.put("senderBTMAC", senderDeviceAddress);
+                        obj.put("receiverBTMAC", mDeviceAddress);
+                        obj.put("filename", mFileName);
+                        //obj.put("appName", context.getString(R.string.app_name_for_topup_server));
+//                        obj.put("clientEpoch", clientEpochTime );
+
+                        for (int i = 0; i < obj.names().length(); i++) {
+                            Log.e("MainActivity.Java", "key = " + obj.names().getString(i) + " value = " + obj.get(obj.names().getString(i)));
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+
+//                    SharedPreferences sharedPref = context.getSharedPreferences(
+//                            context.getString(R.string.first_file_transfer), Context.MODE_PRIVATE);
+//                    SharedPreferences.Editor editor = sharedPref.edit();
+//                    editor.putBoolean(context.getString(R.string.first_file_transfer), true);
+//                    editor.apply();
+
+                    mDeviceName = "";
+                    mDeviceAddress = "";
+
+                }
+
+            }
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MainActivity.this.unregisterReceiver(bultooReceiver);
+    }
+    private static String getBtAddressViaReflection() {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        Object bluetoothManagerService = new Mirror().on(bluetoothAdapter).get().field("mService");
+        if (bluetoothManagerService == null) {
+            Log.w("ma", "couldn't find bluetoothManagerService");
+            return null;
+        }
+        Object address = new Mirror().on(bluetoothManagerService).invoke().method("getAddress").withoutArgs();
+        if (address != null && address instanceof String) {
+            Log.w("ma", "using reflection to get the BT MAC address: " + address);
+            return (String) address;
+        } else {
+            return null;
+        }
+    }
+
 }

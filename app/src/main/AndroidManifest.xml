@@ -20,7 +20,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".StoryViewActivity"
-            android:parentActivityName=".MainActivity" ></activity>
+            android:parentActivityName=".StoryListViewActivity" ></activity>
         <activity
             android:name=".StoryListViewActivity"
             android:parentActivityName=".MainActivity" />
