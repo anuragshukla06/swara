@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="operator_array">
+        <item> - </item>
         <item>BSNL</item>
         <item>JIO</item>
         <item>AIRTEL</item>

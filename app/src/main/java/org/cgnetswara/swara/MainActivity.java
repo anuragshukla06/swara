@@ -22,6 +22,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -39,6 +40,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -56,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     Spinner operator;
     Button op1,op2,op3,op4;
     IntentFilter mFilter;
+    Boolean numberOk=false, operatorOk=false;
+    Boolean onCreateFlag=true;
 
     private void addPermission(List<String> permissionsList, String permission) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -78,6 +82,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void checkForOptions(){
+        Log.d("number/op",""+numberOk+"/"+operatorOk);
+        if(numberOk&&operatorOk){
+            switchOptions(true);
+        }
+        else{
+            switchOptions(false);
+        }
+    }
+
     private void initialiseUI(){
         phoneNumber=findViewById(R.id.editText);
         operator=findViewById(R.id.spinner);
@@ -90,13 +104,16 @@ public class MainActivity extends AppCompatActivity {
         op3=findViewById(R.id.button3);
         op4=findViewById(R.id.button4);//Phone Number and operator info
         sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        if(sp.contains("phone_number")){
+        if(sp.contains("phone_number")&&sp.contains("operator")){
             phoneNumber.setText(sp.getString("phone_number","DNE"));
+            operator.setSelection(Integer.parseInt(sp.getString("operator","0")));
+            numberOk=true;
+            operatorOk=true;
         }
         else{
-            switchOptions(false);
             phoneNumber.setError("कृपया 10 अंकों का फोन नंबर दर्ज करें और ऑपरेटर का चयन करें !");
         }
+        checkForOptions();
         phoneNumber.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -107,15 +124,40 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 if(s.length()!=10){
-                    switchOptions(false);
                     phoneNumber.setError("कृपया 10 अंकों का फोन नंबर दर्ज करें और ऑपरेटर का चयन करें !");
+                    numberOk=false;
                 }
                 else{
-                    switchOptions(true);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString("phone_number",s.toString());
                     editor.apply();
+                    numberOk=true;
                 }
+                checkForOptions();
+            }
+        });
+        operator.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (!onCreateFlag) {
+                    String[] temp = {"-", "BSNL", "JIO", "AIRTEL", "VODAFONE", "RC", "RG", "AIRCEL", "IDEA"};//Caution! Make sure this array is congruent to R.array.operator_array
+                    if (id != 0) {
+                        Log.d("option selected", position + ":" + temp[position]);
+                        SharedPreferences.Editor editor = sp.edit();
+                        editor.putString("operator", "" + position);
+                        editor.apply();
+                        operatorOk = true;
+                    } else {
+                        operatorOk = false;
+                    }
+                    checkForOptions();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // your code here
+                Log.d("option selected",":");
             }
         });
 
@@ -139,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
             givePermissions();
         }
         initialiseUI();
+        onCreateFlag=false;
 
         mFilter = new IntentFilter();
         mFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
