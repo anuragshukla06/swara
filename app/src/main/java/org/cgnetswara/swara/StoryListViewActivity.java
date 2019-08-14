@@ -39,26 +39,26 @@ public class StoryListViewActivity extends AppCompatActivity {
     private String option;
     private int start;
     private int end;
+    String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_story_list_view);
+        start=0;
+        end=start+10;
         layoutManager();
         //creating adapter object and setting it to recyclerview
         storyAdapter = new StoryAdapter(this,storyList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(storyAdapter);
-        start=0;
-        end=start+10;
         loadStorys();
     }
 
     public void layoutManager(){
         try {
             Intent data = getIntent();
-            phoneNumber = data.getStringExtra("phone_number");
             option = data.getStringExtra("option");
             recyclerView = (RecyclerView) findViewById(R.id.rView);
             searchInput = findViewById(R.id.editTextSearchInput);
@@ -67,6 +67,11 @@ public class StoryListViewActivity extends AppCompatActivity {
                 case "3":
                     searchButton.setVisibility(View.GONE);
                     searchInput.setVisibility(View.GONE);
+                    url = getString(R.string.base_url)+"pblockswara/BULTOO/"+start+"/"+end;
+                    break;
+                case "2":
+                    phoneNumber = data.getStringExtra("phone_number");
+                    url = getString(R.string.base_url)+"pblockswara2/"+phoneNumber+"/"+start+"/"+end;
                     break;
             }
         }catch(NullPointerException e){
@@ -76,8 +81,6 @@ public class StoryListViewActivity extends AppCompatActivity {
     }
 
     public void loadStorys(){
-        String url = getString(R.string.base_url)+"pblock/"+start+"/"+end;
-
         stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -116,10 +119,12 @@ public class StoryListViewActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Log.d("Story fetch volley", error.toString());
                         Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_LONG).show();
                     }
                 });
         stringRequest.setTag(REQUESTTAG);
+        stringRequest.setShouldCache(false);
         requestQueue= Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
 

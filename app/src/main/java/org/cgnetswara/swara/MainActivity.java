@@ -276,7 +276,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void option3ListenStories(View view) {
         Intent storyList=new Intent(this, StoryListViewActivity.class);
-        storyList.putExtra("phone_number",phoneNumber.getText().toString());
         storyList.putExtra("option","3");
         startActivity(storyList);
     }
