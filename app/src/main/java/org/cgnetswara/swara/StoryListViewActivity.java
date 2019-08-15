@@ -1,6 +1,8 @@
 package org.cgnetswara.swara;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -25,6 +27,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class StoryListViewActivity extends AppCompatActivity {
     private List<StoryModel> storyList=new ArrayList<>();
@@ -35,11 +38,13 @@ public class StoryListViewActivity extends AppCompatActivity {
     StringRequest stringRequest;
     EditText searchInput;
     ImageButton searchButton;
-    private String phoneNumber;
-    private String option;
+    private String phoneNumber="";
+    private String option="";
     private int start;
     private int end;
     String url;
+    public static final String StoryListPrefs = "StoryListPrefs" ;
+    SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +52,7 @@ public class StoryListViewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_story_list_view);
         start=0;
         end=start+10;
-        layoutManager();
+        intentManager();
         //creating adapter object and setting it to recyclerview
         storyAdapter = new StoryAdapter(this,storyList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -56,31 +61,57 @@ public class StoryListViewActivity extends AppCompatActivity {
         loadStorys();
     }
 
-    public void layoutManager(){
+    public void intentManager(){
+        sp = getSharedPreferences(StoryListPrefs,Context.MODE_PRIVATE);
         try {
             Intent data = getIntent();
             option = data.getStringExtra("option");
-            recyclerView = (RecyclerView) findViewById(R.id.rView);
-            searchInput = findViewById(R.id.editTextSearchInput);
-            searchButton = findViewById(R.id.imageButtonSearch);
             switch (option) {
                 case "3":
-                    searchButton.setVisibility(View.GONE);
-                    searchInput.setVisibility(View.GONE);
-                    url = getString(R.string.base_url)+"pblockswara/BULTOO/"+start+"/"+end;
                     break;
                 case "2":
+                    SharedPreferences.Editor editor = sp.edit();
                     phoneNumber = data.getStringExtra("phone_number");
-                    url = getString(R.string.base_url)+"pblockswara2/"+phoneNumber+"/"+start+"/"+end;
+                    editor.putString("phone_number", phoneNumber);
+                    editor.apply();
                     break;
             }
-        }catch(NullPointerException e){
-            //Intent missing
-            Log.d("Looks like:","The intent is missing");
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString("option_chosen", option);
+            editor.apply();
+        }catch (NullPointerException e){
+            Log.d("Looks like:", "The intent is missing");
+            option = sp.getString("option_chosen", "3");
+            phoneNumber = sp.getString("phone_number", "9");
+        }
+        Map<String, ?> paths = sp.getAll();
+        for (Map.Entry<String, ?> row : paths.entrySet()) {
+            //Iterating over each sp entry and emailing
+            String values = row.getKey() + "," + row.getValue().toString();
+            Log.d("values",values);
+        }
+        layoutManager();
+    }
+
+    public void layoutManager(){
+        recyclerView = (RecyclerView) findViewById(R.id.rView);
+        searchInput = findViewById(R.id.editTextSearchInput);
+        searchButton = findViewById(R.id.imageButtonSearch);
+        switch (option) {
+            case "3":
+                searchButton.setVisibility(View.GONE);
+                searchInput.setVisibility(View.GONE);
+                url = getString(R.string.base_url)+"pblockswara/BULTOO/"+start+"/"+end;
+                break;
+            case "2":
+                searchInput.setText(phoneNumber);
+                url = getString(R.string.base_url)+"pblockswara2/"+phoneNumber+"/"+start+"/"+end;
+                break;
         }
     }
 
     public void loadStorys(){
+        Log.d("Fetching from URL:",url);
         stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -161,11 +192,13 @@ public class StoryListViewActivity extends AppCompatActivity {
         }
     }
 
+
     public void showNewer(View view) {
         if (start-10 >= 0){
             start=start-10;
             end=start+10;
             storyList.clear();
+            layoutManager();
             loadStorys();
         }
     }
@@ -174,6 +207,7 @@ public class StoryListViewActivity extends AppCompatActivity {
         start=start+10;
         end=start+10;
         storyList.clear();
+        layoutManager();
         loadStorys();
     }
 
@@ -182,5 +216,16 @@ public class StoryListViewActivity extends AppCompatActivity {
     }
 
     public void search(View view) {
+        if(searchInput.length()>0) {
+            phoneNumber = searchInput.getText().toString();
+            SharedPreferences.Editor editor=sp.edit();
+            editor.putString("phone_number", phoneNumber);
+            editor.apply();
+            storyList.clear();
+            layoutManager();
+            loadStorys();
+        }else{
+            searchInput.setError("कृपया सही फ़ोन नंबर दर्ज करें !");
+        }
     }
 }

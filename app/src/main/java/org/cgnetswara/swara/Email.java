@@ -85,7 +85,7 @@ public class Email extends AsyncTask<Void, Void, Boolean> {
                 e.printStackTrace();
             }
             try {
-                if(!photoLocation.equals("")){
+                if(!photoLocation.equals("") && !photoLocation.equals("0")){
                     mail.addAttachment(photoLocation);
                     Log.d("Location: ",photoLocation);
                 }
