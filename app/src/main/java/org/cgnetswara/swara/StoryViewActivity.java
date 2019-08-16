@@ -1,8 +1,13 @@
 package org.cgnetswara.swara;
 
+import android.app.DownloadManager;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,7 +17,10 @@ import android.support.v7.widget.RecyclerView;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,26 +35,31 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class StoryViewActivity extends AppCompatActivity {
 
     public static final String REQUESTTAG3 = "requesttag3";
     public static final String REQUESTTAG2 = "requesttag2";
     public static final String REQUESTTAG1 = "requesttag1";
-    StringRequest stringRequest1;
-    StringRequest stringRequest2;
-    StringRequest stringRequest3;
+    StringRequest stringRequest1, stringRequest2, stringRequest3;
     RequestQueue requestQueue;
     private RecyclerView recyclerView;
     private CommentAdapter commentAdapter;
     private List<MessageModel> commentList=new ArrayList<>();
     Typeface Hindi;
-    String username;
-    String problem_id;
+    String username, problem_id;
+    MediaPlayer storyPlayer;
+    ImageButton playStoryButton;
+    String fileLocation;
+    Button downloadButton;
+    SeekBar seekBarProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +94,7 @@ public class StoryViewActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(commentAdapter);
+        layoutManager();
         loadComments();
     }
 
@@ -98,12 +112,8 @@ public class StoryViewActivity extends AppCompatActivity {
 
                             //converting the string to json array object
                             JSONArray array = new JSONArray(response);
-                            Log.e("ccc",response);
-
                             //traversing through all the object
                             for (int i = 0; i < array.length(); i++) {
-
-
                                 //getting product object from json array
                                 JSONObject jsonProblem = array.getJSONObject(i);
                                 MessageModel comment=new MessageModel();
@@ -112,10 +122,8 @@ public class StoryViewActivity extends AppCompatActivity {
                                 comment.setDatetime(jsonProblem.getString("datetime").substring(0,4)+"/"+
                                         jsonProblem.getString("datetime").substring(4,6)+"/"+
                                         jsonProblem.getString("datetime").substring(6,8));
-
                                 commentList.add(comment);
                                 commentAdapter.notifyDataSetChanged();
-
                             }
 
                         } catch (JSONException e) {
@@ -225,5 +233,64 @@ public class StoryViewActivity extends AppCompatActivity {
     }
 
     public void openChat(View view) {
+    }
+
+    public void findPath(){
+        String myDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File f = new File(myDirectory);
+        if (f.exists() && f.isDirectory()){
+            final Pattern p = Pattern.compile("myfile_*\\_(^0*(1?\\d|%d)$).mp4"); // I know I really have a stupid mistake on the regex;
+
+            File[] flists = f.listFiles(new FileFilter(){
+                @Override
+                public boolean accept(File file) {
+                    return p.matcher(file.getName()).matches();
+                }
+            });
+
+            String s = "wait a minute, i'm debugging";
+        }
+    }
+
+    public void layoutManager(){
+        Log.d("P_id",problem_id);
+        fileLocation=Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS+"/CGSwaraStory_"+problem_id+".mp3";
+        Log.d("P_Guessed_Location",fileLocation);
+        File f= new File(fileLocation);
+        playStoryButton=findViewById(R.id.imageButtonPlayStory);
+        seekBarProgress=findViewById(R.id.seekBar);
+        downloadButton=findViewById(R.id.buttonDownload);
+        if(f.exists()){
+            playStoryButton.setVisibility(View.VISIBLE);
+            seekBarProgress.setVisibility(View.VISIBLE);
+            downloadButton.setVisibility(View.INVISIBLE);
+        }
+        else{
+            downloadButton.setVisibility(View.VISIBLE);
+            playStoryButton.setVisibility(View.INVISIBLE);
+            seekBarProgress.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public void playStory(View view) {
+        storyPlayer=new MediaPlayer();
+        try {
+            storyPlayer.setDataSource("file://" + fileLocation);
+            storyPlayer.prepare();
+            storyPlayer.start();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void downloadStory(View view) {
+        String url = "http://cgnetswara.org/audio/"+problem_id+".mp3";
+        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(url));
+        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "CGSwaraStory_"+problem_id+".mp3");
+        r.allowScanningByMediaScanner();
+        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        r.setVisibleInDownloadsUi(true);
+        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        manager.enqueue(r);
     }
 }
