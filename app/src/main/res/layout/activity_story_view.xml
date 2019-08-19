@@ -12,6 +12,7 @@
         android:layout_height="match_parent"
         tools:context=".StoryViewActivity">
 
+
         <TextView
             android:id="@+id/apvDesc"
             android:layout_width="0dp"
