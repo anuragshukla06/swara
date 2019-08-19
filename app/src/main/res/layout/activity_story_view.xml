@@ -58,11 +58,12 @@
             android:id="@+id/apvCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:text="0 out of 2 users have adopted this problem."
             android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="243dp" />
+            app:layout_constraintTop_toBottomOf="@+id/commentSubmitButton" />
 
         <EditText
             android:id="@+id/inputComments"

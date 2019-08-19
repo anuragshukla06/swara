@@ -5,9 +5,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,6 +40,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +65,8 @@ public class StoryViewActivity extends AppCompatActivity {
     String fileLocation;
     Button downloadButton;
     SeekBar seekBarProgress;
+    int audioDuration;
+    boolean playState=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -232,8 +239,6 @@ public class StoryViewActivity extends AppCompatActivity {
         loadComments();
     }
 
-    public void openChat(View view) {
-    }
 
     public void findPath(){
         String myDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -251,6 +256,7 @@ public class StoryViewActivity extends AppCompatActivity {
             String s = "wait a minute, i'm debugging";
         }
     }
+
 
     public void layoutManager(){
         Log.d("P_id",problem_id);
@@ -272,16 +278,70 @@ public class StoryViewActivity extends AppCompatActivity {
         }
     }
 
+
     public void playStory(View view) {
-        storyPlayer=new MediaPlayer();
+        if(playState){
+            playStoryButton.setImageResource(android.R.drawable.ic_media_pause);
+            playState=false;
+            try {
+                storyPlayer=new MediaPlayer();
+                storyPlayer.setDataSource("file://" + fileLocation);
+                storyPlayer.prepare();
+                audioDuration=storyPlayer.getDuration()/1000;
+                seekBarProgress.setMax(((int)Math.ceil(audioDuration)));
+                Log.d("Length is ",""+audioDuration);
+                storyPlayer.start();
+                storyPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    public void onCompletion(MediaPlayer mp) {
+                        playStoryButton.setImageResource(android.R.drawable.ic_media_play);
+                        playState=true;
+                    }
+                });
+            }catch(Exception e){//audioplayer exceptions
+                e.printStackTrace();
+            }
+        }
+        else{
+            playStoryButton.setImageResource(android.R.drawable.ic_media_play);
+            playState=true;
+            storyPlayer.stop();
+            //stopPlaying();
+        }
+
+        final Handler mHandler = new Handler();
+        //Make sure you update Seekbar on UI thread
         try {
-            storyPlayer.setDataSource("file://" + fileLocation);
-            storyPlayer.prepare();
-            storyPlayer.start();
-        }catch(Exception e){
+            StoryViewActivity.this.runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    if (storyPlayer!= null) {
+                        int mCurrentPosition = storyPlayer.getCurrentPosition()/1000;
+                        //Log.d("position: ",""+mCurrentPosition);
+                        seekBarProgress.setProgress(mCurrentPosition);
+                    }
+                    mHandler.postDelayed(this, 1000);
+                }
+            });
+        }catch (Exception e){
             e.printStackTrace();
         }
     }
+
+    public void releasePlaying(){
+        //Repeated tasks on Clear, Play or Accept
+        if(storyPlayer!=null) {
+            storyPlayer.release();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        releasePlaying();
+    }
+
+
 
     public void downloadStory(View view) {
         String url = "http://cgnetswara.org/audio/"+problem_id+".mp3";
