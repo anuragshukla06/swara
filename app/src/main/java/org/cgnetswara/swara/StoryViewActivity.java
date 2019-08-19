@@ -8,9 +8,11 @@ import android.graphics.Typeface;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -81,12 +83,31 @@ public class StoryViewActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         String title = (String)item.getTitleCondensed();
-        Log.d("share",""+title);
         if (title!=null && title.equals("Share")) {
-            Log.d("share","success");
+            shareStory();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void shareStory(){
+        Uri shareUri;
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        File f= new File(fileLocation);
+        if(f.exists()) {
+            if (Build.VERSION.SDK_INT >= 24) {
+                shareUri = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", f);
+            } else {
+                shareUri = Uri.fromFile(f);
+            }
+            Log.d("share: ", "" + shareUri);
+            intent.putExtra(Intent.EXTRA_STREAM, shareUri);
+            intent.setType("*/*");
+            startActivity(Intent.createChooser(intent, "Share"));
+        }
+        else{
+            Toast.makeText(getBaseContext(), "भेजने से पेहले सन्देश डाउनलोड करें", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

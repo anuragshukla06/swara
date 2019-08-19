@@ -237,7 +237,8 @@ public class StoryListViewActivity extends AppCompatActivity {
         }
     }
 
-    public void getSPData(SharedPreferences localsp){
 
+    public void Share(View view) {
+        Log.d("","are you serious");
     }
 }
