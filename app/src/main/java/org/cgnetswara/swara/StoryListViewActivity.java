@@ -44,7 +44,9 @@ public class StoryListViewActivity extends AppCompatActivity {
     private int end;
     String url;
     public static final String StoryListPrefs = "StoryListPrefs" ;
+    public static final String Stories = "Stories" ;
     SharedPreferences sp;
+    SharedPreferences sp2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,7 @@ public class StoryListViewActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(storyAdapter);
+        sp2=getSharedPreferences(Stories,Context.MODE_PRIVATE);
         loadStorys();
     }
 
@@ -83,12 +86,6 @@ public class StoryListViewActivity extends AppCompatActivity {
             Log.d("Looks like:", "The intent is missing");
             option = sp.getString("option_chosen", "3");
             phoneNumber = sp.getString("phone_number", "9");
-        }
-        Map<String, ?> paths = sp.getAll();
-        for (Map.Entry<String, ?> row : paths.entrySet()) {
-            //Iterating over each sp entry and emailing
-            String values = row.getKey() + "," + row.getValue().toString();
-            Log.d("values",values);
         }
         layoutManager();
     }
@@ -117,14 +114,11 @@ public class StoryListViewActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         try {
-
-
                             //converting the string to json array object
                             JSONArray array = new JSONArray(response);
 
                             //traversing through all the object
                             for (int i = 0; i < array.length(); i++) {
-
                                 //getting product object from json array
                                 JSONObject jsonStory = array.getJSONObject(i);
                                 StoryModel story=new StoryModel();
@@ -133,18 +127,16 @@ public class StoryListViewActivity extends AppCompatActivity {
                                 story.setText(jsonStory.getString("problem_text"));
                                 story.setCount(jsonStory.getString("duration"));
                                 story.setDatetime(jsonStory.getString("datetime"));
-
                                 story.setAccessingUser(phoneNumber);
-
                                 storyList.add(story);
                                 storyAdapter.notifyDataSetChanged();
-
                             }
-
+                            if(url.equals("http://flask-aws-dev.ap-south-1.elasticbeanstalk.com/pblockswara/BULTOO/0/10")){
+                                storeStoriesOffline(array);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
                     }
                 },
                 new Response.ErrorListener() {
@@ -152,36 +144,51 @@ public class StoryListViewActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Story fetch volley", error.toString());
                         Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_LONG).show();
+                        if(url.equals("http://flask-aws-dev.ap-south-1.elasticbeanstalk.com/pblockswara/BULTOO/0/10")){
+                            getStoriesOffline();
+                        }
                     }
                 });
         stringRequest.setTag(REQUESTTAG);
         stringRequest.setShouldCache(false);
         requestQueue= Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
-
-
-        //sample storys
-        /*
-        StoryModel story1=new StoryModel();
-        story1.setId("123");
-        String desc="\u0917";
-        story1.setDesc(desc);
-        story1.setText("story text");
-        story1.setCount("0/2");
-        story1.setDatetime("29th Aug");
-        story1.setAccessingUser(username);
-        storyList.add(story1);
-        StoryModel story2=new StoryModel();
-        story2.setId("123");
-        story2.setDesc("story alok");
-        story2.setText("story text the other thing to see is this now.long type list");
-        story2.setCount("1/2");
-        story2.setDatetime("1st Sep");
-        story2.setAccessingUser(username);
-        storyList.add(story2);
-        */
-
         storyAdapter.notifyDataSetChanged();
+    }
+
+    public void storeStoriesOffline(JSONArray array){
+        for (int i = 0; i < array.length(); i++) {
+            try {
+                //getting product object from json array
+                JSONObject jsonStory = array.getJSONObject(i);
+                SharedPreferences.Editor editor = sp2.edit();
+                editor.putString("problem_id_"+i,jsonStory.getString("problem_id"));
+                editor.putString("problem_desc_"+i,jsonStory.getString("problem_desc"));
+                editor.putString("problem_text_"+i,jsonStory.getString("problem_text"));
+                editor.putString("duration_"+i,jsonStory.getString("duration"));
+                editor.putString("datetime_"+i,jsonStory.getString("datetime"));
+                Log.d("Storing offline",jsonStory.getString("problem_id"));
+                editor.apply();
+                //Note to add this line for story objects while fetching online --> story.setAccessingUser(phoneNumber);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void getStoriesOffline(){
+        storyList.clear();
+        for(int i=0; i<sp2.getAll().size()/5; i++){
+            StoryModel story=new StoryModel();
+            story.setId(sp2.getString("problem_id_"+i,""));
+            story.setDesc(sp2.getString("problem_desc_"+i,""));
+            story.setText(sp2.getString("problem_text_"+i,""));
+            story.setCount(sp2.getString("duration_"+i,""));
+            story.setDatetime(sp2.getString("datetime_"+i,""));
+            story.setAccessingUser(phoneNumber);
+            storyList.add(story);
+            storyAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -212,6 +219,7 @@ public class StoryListViewActivity extends AppCompatActivity {
     }
 
     public void reload(View view) {
+        storyList.clear();
         loadStorys();
     }
 
@@ -227,5 +235,9 @@ public class StoryListViewActivity extends AppCompatActivity {
         }else{
             searchInput.setError("कृपया सही फ़ोन नंबर दर्ज करें !");
         }
+    }
+
+    public void getSPData(SharedPreferences localsp){
+
     }
 }
