@@ -75,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
         addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         addPermission(permissionsList, Manifest.permission.READ_EXTERNAL_STORAGE);
         addPermission(permissionsList, Manifest.permission.RECORD_AUDIO);
-        addPermission(permissionsList, Manifest.permission.READ_PHONE_STATE);
         if (permissionsList.size() > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
@@ -300,30 +299,6 @@ public class MainActivity extends AppCompatActivity {
 
                     Log.e(mDeviceAddress + " + " + mDeviceName, mFileName);
                     String senderDeviceAddress = "";
-                    JSONObject obj = new JSONObject();
-                    try {
-                        obj.put("senderBTMAC", senderDeviceAddress);
-                        obj.put("receiverBTMAC", mDeviceAddress);
-                        obj.put("filename", mFileName);
-                        //obj.put("appName", context.getString(R.string.app_name_for_topup_server));
-//                        obj.put("clientEpoch", clientEpochTime );
-
-                        for (int i = 0; i < obj.names().length(); i++) {
-                            Log.e("MainActivity.Java", "key = " + obj.names().getString(i) + " value = " + obj.get(obj.names().getString(i)));
-                        }
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-
-//                    SharedPreferences sharedPref = context.getSharedPreferences(
-//                            context.getString(R.string.first_file_transfer), Context.MODE_PRIVATE);
-//                    SharedPreferences.Editor editor = sharedPref.edit();
-//                    editor.putBoolean(context.getString(R.string.first_file_transfer), true);
-//                    editor.apply();
-
-                    mDeviceName = "";
-                    mDeviceAddress = "";
-
                 }
 
             }
@@ -335,21 +310,4 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         MainActivity.this.unregisterReceiver(bultooReceiver);
     }
-
-    private static String getBtAddressViaReflection() {
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        Object bluetoothManagerService = new Mirror().on(bluetoothAdapter).get().field("mService");
-        if (bluetoothManagerService == null) {
-            Log.w("ma", "couldn't find bluetoothManagerService");
-            return null;
-        }
-        Object address = new Mirror().on(bluetoothManagerService).invoke().method("getAddress").withoutArgs();
-        if (address != null && address instanceof String) {
-            Log.w("ma", "using reflection to get the BT MAC address: " + address);
-            return (String) address;
-        } else {
-            return null;
-        }
-    }
-
 }
