@@ -77,7 +77,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     }
 
     @Override
-    public void onBindViewHolder(StoryViewHolder holder, int position) {
+    public void onBindViewHolder(StoryViewHolder holder, int position){
         final StoryModel story = storyList.get(position);
         String desc, text;
 

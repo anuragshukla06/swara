@@ -15,9 +15,11 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -52,14 +54,14 @@ public class MainActivity extends AppCompatActivity {
     private int MY_PERMISSIONS_REQUESTS = 0;
     SharedPreferences sp;
     SharedPreferences sp2;
-    public static final String MyPREFERENCES = "MainActivityPrefs" ;
-    public static final String RecordingScreenPrefs = "RecordingScreenPrefs" ;
+    public static final String MyPREFERENCES = "MainActivityPrefs";
+    public static final String RecordingScreenPrefs = "RecordingScreenPrefs";
     EditText phoneNumber;
     Spinner operator;
-    Button op1,op2,op3,op4;
+    Button op1, op2, op3, op4;
     IntentFilter mFilter;
-    Boolean numberOk=false, operatorOk=false;
-    Boolean onCreateFlag=true;
+    Boolean numberOk = false, operatorOk = false;
+    Boolean onCreateFlag = true;
 
     private void addPermission(List<String> permissionsList, String permission) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         addPermission(permissionsList, Manifest.permission.READ_EXTERNAL_STORAGE);
         addPermission(permissionsList, Manifest.permission.RECORD_AUDIO);
+        addPermission(permissionsList, Manifest.permission.READ_PHONE_STATE);
         if (permissionsList.size() > 0) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(permissionsList.toArray(new String[permissionsList.size()]),
@@ -82,35 +85,33 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void checkForOptions(){
-        Log.d("number/op",""+numberOk+"/"+operatorOk);
-        if(numberOk&&operatorOk){
+    private void checkForOptions() {
+        Log.d("number/op", "" + numberOk + "/" + operatorOk);
+        if (numberOk && operatorOk) {
             switchOptions(true);
-        }
-        else{
+        } else {
             switchOptions(false);
         }
     }
 
-    private void initialiseUI(){
-        phoneNumber=findViewById(R.id.editText);
-        operator=findViewById(R.id.spinner);
+    private void initialiseUI() {
+        phoneNumber = findViewById(R.id.editText);
+        operator = findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.operator_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         operator.setAdapter(adapter);
-        op1=findViewById(R.id.button);
-        op2=findViewById(R.id.button2);
-        op3=findViewById(R.id.button3);
-        op4=findViewById(R.id.button4);//Phone Number and operator info
+        op1 = findViewById(R.id.button);
+        op2 = findViewById(R.id.button2);
+        op3 = findViewById(R.id.button3);
+        op4 = findViewById(R.id.button4);//Phone Number and operator info
         sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        if(sp.contains("phone_number")&&sp.contains("operator")){
-            phoneNumber.setText(sp.getString("phone_number","DNE"));
-            operator.setSelection(Integer.parseInt(sp.getString("operator","0")));
-            numberOk=true;
-            operatorOk=true;
-        }
-        else{
+        if (sp.contains("phone_number") && sp.contains("operator")) {
+            phoneNumber.setText(sp.getString("phone_number", "DNE"));
+            operator.setSelection(Integer.parseInt(sp.getString("operator", "0")));
+            numberOk = true;
+            operatorOk = true;
+        } else {
             phoneNumber.setError("कृपया 10 अंकों का फोन नंबर दर्ज करें और ऑपरेटर का चयन करें !");
         }
         checkForOptions();
@@ -118,25 +119,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
+
             @Override
             public void afterTextChanged(Editable s) {
-                if(s.length()!=10){
+                if (s.length() != 10) {
                     phoneNumber.setError("कृपया 10 अंकों का फोन नंबर दर्ज करें और ऑपरेटर का चयन करें !");
-                    numberOk=false;
-                }
-                else{
+                    numberOk = false;
+                } else {
                     SharedPreferences.Editor editor = sp.edit();
-                    editor.putString("phone_number",s.toString());
+                    editor.putString("phone_number", s.toString());
                     editor.apply();
-                    numberOk=true;
+                    numberOk = true;
                 }
                 checkForOptions();
             }
         });
-        operator.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+        operator.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 if (!onCreateFlag) {
@@ -157,20 +159,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
                 // your code here
-                Log.d("option selected",":");
+                Log.d("option selected", ":");
             }
         });
 
     }
 
-    public void switchOptions(boolean val){
+    public void switchOptions(boolean val) {
         op1.setEnabled(val);
         op2.setEnabled(val);
         op3.setEnabled(val);
         op4.setEnabled(val);
     }
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
             givePermissions();
         }
         initialiseUI();
-        onCreateFlag=false;
+        onCreateFlag = false;
 
         mFilter = new IntentFilter();
         mFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
@@ -260,18 +260,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     public void option2ListenSpecific(View view) {
         Intent storyList=new Intent(this, StoryListViewActivity.class);
         storyList.putExtra("phone_number",phoneNumber.getText().toString());
         storyList.putExtra("option","2");
         startActivity(storyList);
-    }
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-
     }
 
     public void option3ListenStories(View view) {
@@ -281,23 +274,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static final BroadcastReceiver bultooReceiver = new BroadcastReceiver() {
-
-        private boolean mConnected = false;
-
-        private Long timeStartWhenConnected = 0L;
-
+        private Long timeStartWhenConnected = 0L, timeWhenDisconnected=0L;
         private String mDeviceAddress = "";
-
         private String mDeviceName = "";
-
         private String mFileName = "";
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action.equals("android.bluetooth.device.action.ACL_CONNECTED")) {
-                Log.e("MainActivity.Java", "Device connected");
-                mConnected = true;
                 timeStartWhenConnected = System.currentTimeMillis()/1000;
                 Log.e("MainActivity.Java", "Time when started "+timeStartWhenConnected);
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -306,58 +291,15 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("MainActivity.Java", mDeviceAddress + " and " + mDeviceName);
 
             } else if (action.equals("android.bluetooth.device.action.ACL_DISCONNECTED")) {
-                mConnected = false;
-                Long clientEpochTime = System.currentTimeMillis();
-                Long timeWhenDisconnected = clientEpochTime / 1000;
-                Log.e("MainActivity.Java", "Time when disconnected " + timeWhenDisconnected);
+                timeWhenDisconnected = System.currentTimeMillis() / 1000;
                 Log.e("MainActivity.Java", "TIME " + (timeWhenDisconnected - timeStartWhenConnected));
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.e("MainActivity.Java", "Disconnected " + device.getAddress());
-                String macAddress = getBtAddressViaReflection();
-                Log.e("MainActivity.Java", "My id " + macAddress);
-
 
                 if (device.getAddress().equals(mDeviceAddress) || (timeWhenDisconnected - timeStartWhenConnected) > 10) {
 
                     Log.e(mDeviceAddress + " + " + mDeviceName, mFileName);
                     String senderDeviceAddress = "";
-                    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                        try {
-                            Field mServiceField = bluetoothAdapter.getClass().getDeclaredField("mService");
-                            mServiceField.setAccessible(true);
-
-                            Object btManagerService = mServiceField.get(bluetoothAdapter);
-
-                            if (btManagerService != null) {
-                                Log.e("MainActivity.Java", "Difficult MAC address access");
-                                senderDeviceAddress = (String) btManagerService.getClass().getMethod("getAddress").invoke(btManagerService);
-
-                            } else {
-                                Log.e("MainActivity.Java", "Bluetooth manager is null");
-                            }
-                        } catch (NoSuchFieldException e) {
-                            e.printStackTrace();
-                            //throw new RuntimeException(e);
-                        } catch (NoSuchMethodException e) {
-                            e.printStackTrace();
-                            //throw new RuntimeException(e);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                            //throw new RuntimeException(e);
-                        } catch (InvocationTargetException e) {
-                            e.printStackTrace();
-                            //throw new RuntimeException(e);
-                        }
-                    } else {
-                        Log.e("MainActivity.Java", "Easily accessible MAC address");
-                        try {
-                            senderDeviceAddress = BluetoothAdapter.getDefaultAdapter().getAddress();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                    }
                     JSONObject obj = new JSONObject();
                     try {
                         obj.put("senderBTMAC", senderDeviceAddress);
@@ -393,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         MainActivity.this.unregisterReceiver(bultooReceiver);
     }
+
     private static String getBtAddressViaReflection() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Object bluetoothManagerService = new Mirror().on(bluetoothAdapter).get().field("mService");

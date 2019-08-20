@@ -237,8 +237,4 @@ public class StoryListViewActivity extends AppCompatActivity {
         }
     }
 
-
-    public void Share(View view) {
-        Log.d("","are you serious");
-    }
 }
