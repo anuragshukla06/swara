@@ -18,6 +18,8 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.List;
 
+import static org.cgnetswara.swara.StoryViewActivity.BULTOO_FILE;
+
 public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHolder> {
 
     private List<StoryModel> storyList;
@@ -106,6 +108,10 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
     }
 
     public void shareStory(String problem_id){
+        Intent sendName = new Intent();
+        sendName.setAction(BULTOO_FILE);
+        sendName.putExtra("Bultoo_id", problem_id);
+        context_adapter.sendBroadcast(sendName);
         Uri shareUri;
         Intent intent = new Intent(Intent.ACTION_SEND);
         fileLocation= Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS+"/CGSwaraStory_"+problem_id+".mp3";

@@ -72,6 +72,7 @@ public class StoryViewActivity extends AppCompatActivity {
     SeekBar seekBarProgress;
     int audioDuration;
     boolean playState=true;
+    public static final String BULTOO_FILE = "org.cgnetswara.swara.BULTOO_FILE";
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -91,6 +92,11 @@ public class StoryViewActivity extends AppCompatActivity {
     }
 
     public void shareStory(){
+        Intent sendName = new Intent();
+        sendName.setAction(BULTOO_FILE);
+        sendName.putExtra("Bultoo_id", problem_id);
+        sendBroadcast(sendName);
+
         Uri shareUri;
         Intent intent = new Intent(Intent.ACTION_SEND);
         File f= new File(fileLocation);

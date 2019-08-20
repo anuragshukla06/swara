@@ -56,12 +56,13 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences sp2;
     public static final String MyPREFERENCES = "MainActivityPrefs";
     public static final String RecordingScreenPrefs = "RecordingScreenPrefs";
-    EditText phoneNumber;
+    static EditText phoneNumber;
     Spinner operator;
     Button op1, op2, op3, op4;
     IntentFilter mFilter;
     Boolean numberOk = false, operatorOk = false;
     Boolean onCreateFlag = true;
+    public static final String BULTOO_FILE = "org.cgnetswara.swara.BULTOO_FILE";
 
     private void addPermission(List<String> permissionsList, String permission) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -183,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
         onCreateFlag = false;
 
         mFilter = new IntentFilter();
+        mFilter.addAction(BULTOO_FILE);
         mFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         mFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         this.registerReceiver(bultooReceiver, mFilter);
@@ -275,30 +277,31 @@ public class MainActivity extends AppCompatActivity {
     public static final BroadcastReceiver bultooReceiver = new BroadcastReceiver() {
         private Long timeStartWhenConnected = 0L, timeWhenDisconnected=0L;
         private String mDeviceAddress = "";
-        private String mDeviceName = "";
         private String mFileName = "";
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            if(action.equals(BULTOO_FILE)){
+                mFileName=intent.getStringExtra("Bultoo_id");
+                Log.e("Name: ",mFileName);
+            }
             if (action.equals("android.bluetooth.device.action.ACL_CONNECTED")) {
                 timeStartWhenConnected = System.currentTimeMillis()/1000;
                 Log.e("MainActivity.Java", "Time when started "+timeStartWhenConnected);
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 mDeviceAddress = device.getAddress(); // MAC address
-                mDeviceName = device.getName();
-                Log.e("MainActivity.Java", mDeviceAddress + " and " + mDeviceName);
+                Log.e("MainActivity.Java", mDeviceAddress);
 
             } else if (action.equals("android.bluetooth.device.action.ACL_DISCONNECTED")) {
                 timeWhenDisconnected = System.currentTimeMillis() / 1000;
                 Log.e("MainActivity.Java", "TIME " + (timeWhenDisconnected - timeStartWhenConnected));
+                Log.e("k",phoneNumber.getText().toString());
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.e("MainActivity.Java", "Disconnected " + device.getAddress());
 
                 if (device.getAddress().equals(mDeviceAddress) || (timeWhenDisconnected - timeStartWhenConnected) > 10) {
-
-                    Log.e(mDeviceAddress + " + " + mDeviceName, mFileName);
-                    String senderDeviceAddress = "";
+                    Log.e("ok",phoneNumber.getText().toString());
                 }
 
             }
