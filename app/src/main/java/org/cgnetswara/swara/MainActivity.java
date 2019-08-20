@@ -53,10 +53,10 @@ public class MainActivity extends AppCompatActivity {
 
     private int MY_PERMISSIONS_REQUESTS = 0;
     SharedPreferences sp;
-    SharedPreferences sp2;
+    static SharedPreferences sp2;
     public static final String MyPREFERENCES = "MainActivityPrefs";
-    public static final String RecordingScreenPrefs = "RecordingScreenPrefs";
-    static EditText phoneNumber;
+    public static final String StoryShareInfo = "StoryShareInfo";
+    EditText phoneNumber;
     Spinner operator;
     Button op1, op2, op3, op4;
     IntentFilter mFilter;
@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         op2 = findViewById(R.id.button2);
         op3 = findViewById(R.id.button3);
         op4 = findViewById(R.id.button4);//Phone Number and operator info
-        sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+
         if (sp.contains("phone_number") && sp.contains("operator")) {
             phoneNumber.setText(sp.getString("phone_number", "DNE"));
             operator.setSelection(Integer.parseInt(sp.getString("operator", "0")));
@@ -180,6 +180,8 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             givePermissions();
         }
+        sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        sp2 =getSharedPreferences(StoryShareInfo, Context.MODE_PRIVATE);
         initialiseUI();
         onCreateFlag = false;
 
@@ -277,31 +279,43 @@ public class MainActivity extends AppCompatActivity {
     public static final BroadcastReceiver bultooReceiver = new BroadcastReceiver() {
         private Long timeStartWhenConnected = 0L, timeWhenDisconnected=0L;
         private String mDeviceAddress = "";
-        private String mFileName = "";
+        private String problemId = "";
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if(action.equals(BULTOO_FILE)){
-                mFileName=intent.getStringExtra("Bultoo_id");
-                Log.e("Name: ",mFileName);
+                problemId=intent.getStringExtra("Bultoo_id");
+                Log.d("Name: ",problemId);
             }
             if (action.equals("android.bluetooth.device.action.ACL_CONNECTED")) {
                 timeStartWhenConnected = System.currentTimeMillis()/1000;
-                Log.e("MainActivity.Java", "Time when started "+timeStartWhenConnected);
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 mDeviceAddress = device.getAddress(); // MAC address
-                Log.e("MainActivity.Java", mDeviceAddress);
 
             } else if (action.equals("android.bluetooth.device.action.ACL_DISCONNECTED")) {
                 timeWhenDisconnected = System.currentTimeMillis() / 1000;
-                Log.e("MainActivity.Java", "TIME " + (timeWhenDisconnected - timeStartWhenConnected));
-                Log.e("k",phoneNumber.getText().toString());
+                Log.d("Time: ",""+(timeWhenDisconnected - timeStartWhenConnected));
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.e("MainActivity.Java", "Disconnected " + device.getAddress());
+                Log.d("Disconnected: ", "" + device.getAddress());
 
                 if (device.getAddress().equals(mDeviceAddress) || (timeWhenDisconnected - timeStartWhenConnected) > 10) {
-                    Log.e("ok",phoneNumber.getText().toString());
+                    String key=mDeviceAddress+":"+problemId;
+                    Log.d("Key: ",key);
+                    switch(sp2.getString(key,"-1")){
+                        case "-1":
+                            SharedPreferences.Editor editor=sp2.edit();
+                            editor.putString(key,"0");
+                            editor.apply();
+                            Log.d("Case -1","New Unique File Transfer");
+                            break;
+                        case "0":
+                            Log.d("Case 0","Already Shared But not Synced");
+                            break;
+                        case "1":
+                            Log.d("Case 1","Shared and Synced");
+                            break;
+                    }
                 }
 
             }
