@@ -15,6 +15,8 @@ public class StoryModel {
     private String user1;
     private String user2;
     private String nameOfAccessingUser;
+    private String type;
+    private String audioFile;
 
     public String getId() {
         return id;
@@ -126,5 +128,21 @@ public class StoryModel {
 
     public void setNameOfAccessingUser(String nameOfAccessingUser) {
         this.nameOfAccessingUser = nameOfAccessingUser;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getAudioFile() {
+        return audioFile;
+    }
+
+    public void setAudioFile(String audioFile) {
+        this.audioFile = audioFile;
     }
 }

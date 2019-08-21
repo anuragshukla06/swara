@@ -527,13 +527,15 @@ public class MainActivity extends AppCompatActivity {
         private Long timeStartWhenConnected = 0L, timeWhenDisconnected=0L;
         private String mDeviceAddress = "";
         private String problemId = "";
+        private String type="";
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if(action.equals(BULTOO_FILE)){
-                problemId=intent.getStringExtra("Bultoo_id");
-                Log.d("Name: ",problemId);
+                problemId=intent.getStringExtra("problem_id");
+                type=intent.getStringExtra("type");
+                Log.d("Type: ",type);
             }
             if (action.equals("android.bluetooth.device.action.ACL_CONNECTED")) {
                 timeStartWhenConnected = System.currentTimeMillis()/1000;
@@ -546,7 +548,7 @@ public class MainActivity extends AppCompatActivity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.d("Disconnected: ", "" + device.getAddress());
 
-                if (device.getAddress().equals(mDeviceAddress) || (timeWhenDisconnected - timeStartWhenConnected) > 10) {
+                if (device.getAddress().equals(mDeviceAddress)  || (timeWhenDisconnected - timeStartWhenConnected) > 10) {
                     String key=mDeviceAddress+","+problemId;
                     Log.d("Key: ",key);
                     switch(spStoryShare.getString(key,"-1")){
@@ -555,7 +557,9 @@ public class MainActivity extends AppCompatActivity {
                             editor.putString(key,"0");
                             editor.apply();
                             Log.d("Case -1","New Unique File Transfer");
-                            addInWallet();
+                            if(type.equals("bultoo")) {
+                                addInWallet();
+                            }
                             break;
                         case "0":
                             Log.d("Case 0","Already Shared But not Synced");

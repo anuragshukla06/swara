@@ -127,6 +127,13 @@ public class StoryListViewActivity extends AppCompatActivity {
                                 story.setText(jsonStory.getString("problem_text"));
                                 story.setCount(jsonStory.getString("duration"));
                                 story.setDatetime(jsonStory.getString("datetime"));
+                                story.setAudioFile(jsonStory.getString("audio_file"));
+                                if(url.equals("http://flask-aws-dev.ap-south-1.elasticbeanstalk.com/pblockswara/BULTOO/0/10")){
+                                    story.setType("bultoo");
+                                }
+                                else{
+                                    story.setType("normal");
+                                }
                                 story.setAccessingUser(phoneNumber);
                                 storyList.add(story);
                                 storyAdapter.notifyDataSetChanged();
@@ -167,7 +174,7 @@ public class StoryListViewActivity extends AppCompatActivity {
                 editor.putString("problem_text_"+i,jsonStory.getString("problem_text"));
                 editor.putString("duration_"+i,jsonStory.getString("duration"));
                 editor.putString("datetime_"+i,jsonStory.getString("datetime"));
-                Log.d("Storing offline",jsonStory.getString("problem_id"));
+                editor.putString("audio_file_"+i,jsonStory.getString("audio_file"));
                 editor.apply();
                 //Note to add this line for story objects while fetching online --> story.setAccessingUser(phoneNumber);
             }catch(Exception e){
@@ -178,14 +185,16 @@ public class StoryListViewActivity extends AppCompatActivity {
 
     public void getStoriesOffline(){
         storyList.clear();
-        for(int i=0; i<sp2.getAll().size()/5; i++){
+        for(int i=0; i<sp2.getAll().size()/6; i++){
             StoryModel story=new StoryModel();
             story.setId(sp2.getString("problem_id_"+i,""));
             story.setDesc(sp2.getString("problem_desc_"+i,""));
             story.setText(sp2.getString("problem_text_"+i,""));
             story.setCount(sp2.getString("duration_"+i,""));
             story.setDatetime(sp2.getString("datetime_"+i,""));
+            story.setDatetime(sp2.getString("audio_file_"+i,""));
             story.setAccessingUser(phoneNumber);
+            story.setType("bultoo");
             storyList.add(story);
             storyAdapter.notifyDataSetChanged();
         }

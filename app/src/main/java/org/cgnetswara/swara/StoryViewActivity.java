@@ -64,7 +64,7 @@ public class StoryViewActivity extends AppCompatActivity {
     private CommentAdapter commentAdapter;
     private List<MessageModel> commentList=new ArrayList<>();
     Typeface Hindi;
-    String username, problem_id;
+    String username, problem_id, type;
     MediaPlayer storyPlayer;
     ImageButton playStoryButton;
     String fileLocation;
@@ -79,6 +79,7 @@ public class StoryViewActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.actions, menu);
         menu.getItem(1).setVisible(false);
+        menu.getItem(2).setVisible(false);
         return true;
     }
 
@@ -95,7 +96,8 @@ public class StoryViewActivity extends AppCompatActivity {
     public void shareStory(){
         Intent sendName = new Intent();
         sendName.setAction(BULTOO_FILE);
-        sendName.putExtra("Bultoo_id", problem_id);
+        sendName.putExtra("problem_id", problem_id);
+        sendName.putExtra("type",type);
         sendBroadcast(sendName);
 
         Uri shareUri;
@@ -127,6 +129,7 @@ public class StoryViewActivity extends AppCompatActivity {
 
         Intent endpoint = getIntent();
         problem_id = endpoint.getStringExtra("story_id");
+        type=endpoint.getStringExtra("type");
         username = endpoint.getStringExtra("accessing_user");
         final TextView problem_desc = (TextView) findViewById(R.id.apvDesc);
         final TextView problem_text = (TextView) findViewById(R.id.apvText);

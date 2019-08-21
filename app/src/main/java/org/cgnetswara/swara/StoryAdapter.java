@@ -38,6 +38,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
         public static final String STORY_COUNT = "count";
         public static final String STORY_DATETIME = "datetime";
         public static final String ACCESSINGUSER = "accessing_user";
+        public static final String STORY_TYPE = "type";
 
 
         StoryViewHolder(View itemView, StoryAdapter adapter) {
@@ -62,6 +63,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             pv.putExtra(STORY_COUNT,story.getCount());
             pv.putExtra(STORY_DATETIME,story.getDatetime());
             pv.putExtra(ACCESSINGUSER,story.getAccessingUser());
+            pv.putExtra(STORY_TYPE,story.getType());
 
             context_adapter.startActivity(pv);
         }
@@ -97,7 +99,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
         holder.imageButtonShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                shareStory(story.getId());
+                shareStory(story.getId(),story.getType());
             }
         });
     }
@@ -107,10 +109,11 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
         return storyList.size();
     }
 
-    public void shareStory(String problem_id){
+    public void shareStory(String problem_id, String type){
         Intent sendName = new Intent();
         sendName.setAction(BULTOO_FILE);
-        sendName.putExtra("Bultoo_id", problem_id);
+        sendName.putExtra("problem_id", problem_id);
+        sendName.putExtra("type", type);
         context_adapter.sendBroadcast(sendName);
         Uri shareUri;
         Intent intent = new Intent(Intent.ACTION_SEND);
