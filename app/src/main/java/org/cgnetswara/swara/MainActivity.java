@@ -39,6 +39,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean numberOk = false, operatorOk = false;
     Boolean onCreateFlag = true;
     public static final String BULTOO_FILE = "org.cgnetswara.swara.BULTOO_FILE";
-    String[] opArray = {"-", "BSNL", "JIO", "AIRTEL", "VODAFONE", "RC", "RG", "AIRCEL", "IDEA"};//Caution! Make sure this array is congruent to R.array.operator_array
+    String[] opArray = {"-", "BSNL", "JO", "AR", "VF", "RC", "RG", "AIRCEL", "ID"};//Caution! Make sure this array is congruent to R.array.operator_array
     private String rechargePhoneNumber="",rechargeOperator="",rechargeAmount="";
 
     private void addPermission(List<String> permissionsList, String permission) {
@@ -250,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         String newWalletAmount=response;
+                        Log.d("Response is: ",response);
                         if(newWalletAmount.equals(wa) || newWalletAmount.equals( Integer.toString((Integer.parseInt(wa)-Integer.parseInt(ra))) )){
                             setToWallet(newWalletAmount);
                         }
@@ -275,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
         };
         stringRequest2.setTag(REQUESTTAG);
         stringRequest2.setShouldCache(false);
+        stringRequest2.setRetryPolicy(new DefaultRetryPolicy(20000,0,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueue.add(stringRequest2);
     }
 
