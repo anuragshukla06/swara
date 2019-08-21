@@ -27,6 +27,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +36,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -70,8 +72,9 @@ public class MainActivity extends AppCompatActivity {
     private int MY_PERMISSIONS_REQUESTS = 0;
     SharedPreferences sp;
     RequestQueue requestQueue;
-    StringRequest stringRequest;
+    StringRequest stringRequest, stringRequest2;
     public static final String REQUESTTAG = "requesttag";
+    public static final String REQUESTTAG2 = "requesttag2";
     static SharedPreferences spStoryShare;
     static SharedPreferences spWalletData;
     public static final String MyPREFERENCES = "MainActivityPrefs";
@@ -85,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean onCreateFlag = true;
     public static final String BULTOO_FILE = "org.cgnetswara.swara.BULTOO_FILE";
     String[] opArray = {"-", "BSNL", "JIO", "AIRTEL", "VODAFONE", "RC", "RG", "AIRCEL", "IDEA"};//Caution! Make sure this array is congruent to R.array.operator_array
-    private String rechargePhoneNumber="",rechargeOperator="";
+    private String rechargePhoneNumber="",rechargeOperator="",rechargeAmount="";
 
     private void addPermission(List<String> permissionsList, String permission) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -181,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("ठीक", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.d("Finally: ",rechargePhoneNumber+":"+rechargeOperator);
+                buildDialogAmount();
             }
         });
         builder.setNegativeButton("रद्द", new DialogInterface.OnClickListener() {
@@ -190,9 +193,91 @@ public class MainActivity extends AppCompatActivity {
                 dialog.cancel();
             }
         });
-
         builder.show();
     }
+
+    public void buildDialogAmount(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("कृपया रिचार्ज राशि दर्ज करें");
+        final EditText input = new EditText(this);
+        builder.setView(input);
+        builder.setPositiveButton("ठीक", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                rechargeAmount = input.getText().toString();
+                buildDialogConfirm();
+        }
+        });
+        builder.setNegativeButton("रद्द", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+
+    public void buildDialogConfirm(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("जाँच के बाद पुष्टि करें");
+        final TextView info = new TextView(this);
+        info.setGravity(Gravity.CENTER);
+        info.setText("\nPhone: "+rechargePhoneNumber+"\n\tOperator: "+rechargeOperator+"\n\tAmount: "+rechargeAmount);
+        builder.setView(info);
+        builder.setPositiveButton("ठीक", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String walletAmount=spWalletData.getString("Cash","0");
+                Log.d("Finally: ",rechargePhoneNumber+rechargeOperator+rechargeAmount);
+                if(Integer.parseInt(walletAmount)>Integer.parseInt(rechargeAmount)) {
+                    sendTopUpRequestToServer(walletAmount, rechargePhoneNumber, rechargeOperator, rechargeAmount);
+                }
+            }
+        });
+        builder.setNegativeButton("रद्द", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+
+    public void sendTopUpRequestToServer(final String wa, final String rpn, final String ro, final String ra){
+        String url = getString(R.string.base_url) + "swaraRecharge";
+        stringRequest2 = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        String newWalletAmount=response;
+                        if(newWalletAmount.equals(wa) || newWalletAmount.equals( Integer.toString((Integer.parseInt(wa)-Integer.parseInt(ra))) )){
+                            setToWallet(newWalletAmount);
+                        }
+                        else{
+                            Log.e("Error!!","this should never happen");
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Some","Network Error: ",error);
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("phone_number", rpn);
+                params.put("amount", ra);
+                params.put("carrier_code", ro);
+                params.put("wallet_amount", wa);
+                return params;
+            }
+        };
+        stringRequest2.setTag(REQUESTTAG);
+        stringRequest2.setShouldCache(false);
+        requestQueue.add(stringRequest2);
+    }
+
 
     private void initialiseUI() {
         phoneNumber = findViewById(R.id.editText);
@@ -282,6 +367,7 @@ public class MainActivity extends AppCompatActivity {
         sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         spStoryShare = getSharedPreferences(StoryShareInfo, Context.MODE_PRIVATE);
         spWalletData = getSharedPreferences(WalletData,Context.MODE_PRIVATE);
+        requestQueue = Volley.newRequestQueue(this);
         initialiseUI();
         onCreateFlag = false;
 
@@ -307,6 +393,7 @@ public class MainActivity extends AppCompatActivity {
         };
         mHandler.post(runnable);
     }
+
     public void handleSync(){
         String pn="",rbtmac="",fn="",cc="";
         pn=phoneNumber.getText().toString();
@@ -360,7 +447,6 @@ public class MainActivity extends AppCompatActivity {
         };
         stringRequest.setTag(REQUESTTAG);
         stringRequest.setShouldCache(false);
-        requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
     }
 
@@ -491,6 +577,13 @@ public class MainActivity extends AppCompatActivity {
     private static void encash(int amount){
         SharedPreferences.Editor editor = spWalletData.edit();
         editor.putString("Cash",(Integer.parseInt(spWalletData.getString("Cash","0"))-amount)+"");
+        editor.apply();
+        Log.d("Cash",spWalletData.getString("Cash","Error"));
+    }
+
+    private static void setToWallet(String amount){
+        SharedPreferences.Editor editor = spWalletData.edit();
+        editor.putString("Cash",amount);
         editor.apply();
         Log.d("Cash",spWalletData.getString("Cash","Error"));
     }
