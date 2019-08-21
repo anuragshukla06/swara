@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     static SharedPreferences sp2;
     public static final String MyPREFERENCES = "MainActivityPrefs";
     public static final String StoryShareInfo = "StoryShareInfo";
+    private static final String WalletData = "WalletData";
     EditText phoneNumber;
     Spinner operator;
     Button op1, op2, op3, op4;

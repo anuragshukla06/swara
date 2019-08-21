@@ -71,7 +71,7 @@ public class Email extends AsyncTask<Void, Void, Boolean> {
             subject = "Swara-Main|app|" + audioDuration + "|DRAFT|" + phoneNumber + "|" + "unk" + "|" + date + "|PUBLIC";
             body=getBody(phoneNumber,date,audioDuration,"unk");
 
-            mail = new Mail("cgnetmail2019@gmail.com", "QWERTYCGTECH123");
+            mail = new Mail("cgnetmail2019@gmail.com", Safe.getPassword());
             mail.setTo(toArr);
             mail.setFrom("cgnetmail2019@gmail.com");
             mail.setSubject(subject);
