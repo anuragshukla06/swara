@@ -78,6 +78,7 @@ public class StoryViewActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.actions, menu);
+        menu.getItem(1).setVisible(false);
         return true;
     }
 

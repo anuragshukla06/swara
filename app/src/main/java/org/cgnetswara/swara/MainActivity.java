@@ -17,18 +17,29 @@ import android.os.ParcelUuid;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import net.vidageek.mirror.dsl.Mirror;
 
@@ -46,14 +57,20 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private int MY_PERMISSIONS_REQUESTS = 0;
     SharedPreferences sp;
-    static SharedPreferences sp2;
+    RequestQueue requestQueue;
+    StringRequest stringRequest;
+    public static final String REQUESTTAG = "requesttag";
+    static SharedPreferences spStoryShare;
+    static SharedPreferences spWalletData;
     public static final String MyPREFERENCES = "MainActivityPrefs";
     public static final String StoryShareInfo = "StoryShareInfo";
     private static final String WalletData = "WalletData";
@@ -64,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean numberOk = false, operatorOk = false;
     Boolean onCreateFlag = true;
     public static final String BULTOO_FILE = "org.cgnetswara.swara.BULTOO_FILE";
-
+    String[] opArray = {"-", "BSNL", "JIO", "AIRTEL", "VODAFONE", "RC", "RG", "AIRCEL", "IDEA"};//Caution! Make sure this array is congruent to R.array.operator_array
     private void addPermission(List<String> permissionsList, String permission) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
@@ -93,6 +110,25 @@ public class MainActivity extends AppCompatActivity {
         } else {
             switchOptions(false);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.actions, menu);
+        menu.getItem(0).setVisible(false);
+        menu.getItem(2).setTitle("₹ "+spWalletData.getString("Cash","0"));
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        String title = (String)item.getTitleCondensed();
+        if (title!=null && title.equals("रिचार्ज करे")) {
+            Log.d("Hello","World");
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void initialiseUI() {
@@ -143,9 +179,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 if (!onCreateFlag) {
-                    String[] temp = {"-", "BSNL", "JIO", "AIRTEL", "VODAFONE", "RC", "RG", "AIRCEL", "IDEA"};//Caution! Make sure this array is congruent to R.array.operator_array
                     if (id != 0) {
-                        Log.d("option selected", position + ":" + temp[position]);
+                        Log.d("option selected", position + ":" + opArray[position]);
                         SharedPreferences.Editor editor = sp.edit();
                         editor.putString("operator", "" + position);
                         editor.apply();
@@ -182,7 +217,8 @@ public class MainActivity extends AppCompatActivity {
             givePermissions();
         }
         sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-        sp2 =getSharedPreferences(StoryShareInfo, Context.MODE_PRIVATE);
+        spStoryShare = getSharedPreferences(StoryShareInfo, Context.MODE_PRIVATE);
+        spWalletData = getSharedPreferences(WalletData,Context.MODE_PRIVATE);
         initialiseUI();
         onCreateFlag = false;
 
@@ -191,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
         mFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         mFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         this.registerReceiver(bultooReceiver, mFilter);
+
 
         //Runnable
         final Handler mHandler=new Handler();
@@ -202,9 +239,67 @@ public class MainActivity extends AppCompatActivity {
                 asyncTask.execute();
                 mHandler.postDelayed(this, 5000);
                 //Log.d("Noting instance ","of runnable");
+                handleSync();
             }
         };
         mHandler.post(runnable);
+    }
+    public void handleSync(){
+        String pn="",rbtmac="",fn="",cc="";
+        pn=phoneNumber.getText().toString();
+        cc=opArray[Integer.parseInt(sp.getString("operator","0"))];
+        if (pn.length() == 10) {
+            Map<String,?> Keys = spStoryShare.getAll();
+
+            for(Map.Entry<String,?> row : Keys.entrySet()){
+                Log.d("map values",row.getKey() + ": " + row.getValue().toString());
+                rbtmac=row.getKey().split(",")[0];
+                fn=row.getKey().split(",")[1];
+                Log.d("Separately: ",rbtmac+fn+cc);
+                if(row.getValue().toString().equals("0")){
+                    syncToServer(row.getKey(),pn,rbtmac,fn,cc);
+                }
+            }
+        }
+    }
+
+    public void syncToServer(final String key, final String pn, final String rbtmac, final String fn, final String cc) {
+        String url = getString(R.string.base_url) + "newswaratoken";
+        Log.d("Syncing File:",fn);
+
+        stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if(response.equals("Done!")){
+                            Log.d("Synced File:",fn);
+                            SharedPreferences.Editor editor=spStoryShare.edit();
+                            editor.putString(key,"1");
+                            editor.apply();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Synced File:","Failed");
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("senderBTMAC", pn);
+                params.put("receiverBTMAC", rbtmac);
+                params.put("filename", fn);
+                params.put("appName", "Surajpur Bultoo Radio");
+                params.put("phoneNumber", pn);
+                params.put("carrierCode", cc);
+                return params;
+            }
+        };
+        stringRequest.setTag(REQUESTTAG);
+        stringRequest.setShouldCache(false);
+        requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(stringRequest);
     }
 
     public void option1Recording(View view) {
@@ -301,14 +396,15 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Disconnected: ", "" + device.getAddress());
 
                 if (device.getAddress().equals(mDeviceAddress) || (timeWhenDisconnected - timeStartWhenConnected) > 10) {
-                    String key=mDeviceAddress+":"+problemId;
+                    String key=mDeviceAddress+","+problemId;
                     Log.d("Key: ",key);
-                    switch(sp2.getString(key,"-1")){
+                    switch(spStoryShare.getString(key,"-1")){
                         case "-1":
-                            SharedPreferences.Editor editor=sp2.edit();
+                            SharedPreferences.Editor editor=spStoryShare.edit();
                             editor.putString(key,"0");
                             editor.apply();
                             Log.d("Case -1","New Unique File Transfer");
+                            addInWallet();
                             break;
                         case "0":
                             Log.d("Case 0","Already Shared But not Synced");
@@ -322,6 +418,20 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    private static void addInWallet() {
+        SharedPreferences.Editor editor = spWalletData.edit();
+        editor.putString("Cash",(Integer.parseInt(spWalletData.getString("Cash","0"))+2)+"");
+        editor.apply();
+        Log.d("Cash",spWalletData.getString("Cash","Error"));
+    }
+
+    private static void encash(int amount){
+        SharedPreferences.Editor editor = spWalletData.edit();
+        editor.putString("Cash",(Integer.parseInt(spWalletData.getString("Cash","0"))-amount)+"");
+        editor.apply();
+        Log.d("Cash",spWalletData.getString("Cash","Error"));
+    }
 
     @Override
     protected void onDestroy() {

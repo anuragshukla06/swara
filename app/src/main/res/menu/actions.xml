@@ -8,4 +8,14 @@
         android:title="Share"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/Wallet_Info"
+        android:title="रिचार्ज करे"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/Wallet_Amount"
+        android:title="0"
+        app:showAsAction="ifRoom" />
+
 </menu>
