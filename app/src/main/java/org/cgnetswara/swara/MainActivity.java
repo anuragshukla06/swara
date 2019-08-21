@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -18,10 +19,12 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -82,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
     Boolean onCreateFlag = true;
     public static final String BULTOO_FILE = "org.cgnetswara.swara.BULTOO_FILE";
     String[] opArray = {"-", "BSNL", "JIO", "AIRTEL", "VODAFONE", "RC", "RG", "AIRCEL", "IDEA"};//Caution! Make sure this array is congruent to R.array.operator_array
+    private String rechargePhoneNumber="",rechargeOperator="";
+
     private void addPermission(List<String> permissionsList, String permission) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
@@ -125,10 +130,68 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         String title = (String)item.getTitleCondensed();
         if (title!=null && title.equals("रिचार्ज करे")) {
-            Log.d("Hello","World");
+            buildDialogPhoneNumber();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void buildDialogPhoneNumber(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("कृपया 10 अंकों का फोन नंबर दर्ज करें");
+        final EditText input = new EditText(this);
+        builder.setView(input);
+        builder.setPositiveButton("ठीक", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                rechargePhoneNumber = input.getText().toString();
+                buildDialogOperator();
+            }
+        });
+        builder.setNegativeButton("रद्द", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+
+    public void buildDialogOperator(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("कृपया ऑपरेटर का चयन करें");
+        final Spinner input = new Spinner(this);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.operator_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        input.setAdapter(adapter);
+        input.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                rechargeOperator=opArray[position];
+                Log.d("option selected", rechargeOperator);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                Log.d("option selected", ":");
+            }
+        });
+        builder.setView(input);
+        builder.setPositiveButton("ठीक", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.d("Finally: ",rechargePhoneNumber+":"+rechargeOperator);
+            }
+        });
+        builder.setNegativeButton("रद्द", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 
     private void initialiseUI() {
@@ -252,10 +315,9 @@ public class MainActivity extends AppCompatActivity {
             Map<String,?> Keys = spStoryShare.getAll();
 
             for(Map.Entry<String,?> row : Keys.entrySet()){
-                Log.d("map values",row.getKey() + ": " + row.getValue().toString());
                 rbtmac=row.getKey().split(",")[0];
                 fn=row.getKey().split(",")[1];
-                Log.d("Separately: ",rbtmac+fn+cc);
+                //Log.d("Separately: ",rbtmac+fn+cc);
                 if(row.getValue().toString().equals("0")){
                     syncToServer(row.getKey(),pn,rbtmac,fn,cc);
                 }
