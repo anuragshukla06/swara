@@ -61,6 +61,8 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
     private int MY_PERMISSIONS_REQUESTS = 0;
+    private int linesInFile=0;
+    private int linesInStorySP=0;
     SharedPreferences sp;
     RequestQueue requestQueue;
     StringRequest stringRequest, stringRequest2;
@@ -106,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("number/op", "" + numberOk + "/" + operatorOk);
         if (numberOk && operatorOk) {
             switchOptions(true);
+            handleHiddenFile();
         } else {
             switchOptions(false);
         }
@@ -362,8 +365,6 @@ public class MainActivity extends AppCompatActivity {
         spWalletData = getSharedPreferences(WalletData,Context.MODE_PRIVATE);
         requestQueue = Volley.newRequestQueue(this);
         initialiseUI();
-        saveToFile();
-        readFromFile();
         onCreateFlag = false;
 
         mFilter = new IntentFilter();
@@ -387,6 +388,19 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         mHandler.post(runnable);
+    }
+
+    private void handleHiddenFile() {
+        linesInFile=0;linesInStorySP=0;
+        readFromFile();
+        Map<String,?> Keys = spStoryShare.getAll();
+        for(Map.Entry<String,?> row : Keys.entrySet()){
+            linesInStorySP++;
+        }
+        Log.d("Lines in SP=",""+linesInStorySP);
+        if(linesInStorySP>linesInFile){
+            saveToFile();
+        }
     }
 
     public void handleSync(){
@@ -588,12 +602,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void saveToFile(){
-        Map<String,?> map=spWalletData.getAll();
+        Map<String,?> map=spStoryShare.getAll();
         String exstPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         File folder = new File(exstPath+"/swararecordings");
         folder.mkdirs();
-        String path=folder+"/pref.txt";
-        Log.d("Path is",path);
+        String path=folder+"/pref.prf";
         try {
             FileWriter f=new FileWriter(path);
             BufferedWriter bw = new BufferedWriter(f);
@@ -614,14 +627,17 @@ public class MainActivity extends AppCompatActivity {
         String exstPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         File folder = new File(exstPath+"/swararecordings");
         folder.mkdirs();
-        String path=folder+"/pref.txt";
-        Log.d("Path is",path);
+        String path=folder+"/pref.prf";
         try {
             FileReader f=new FileReader(path);
             BufferedReader br = new BufferedReader(f);
             String line;
-            while((line=br.readLine())!=null){
-                Log.d("Key,Value",line);
+            SharedPreferences.Editor editor = spStoryShare.edit();
+            while((line=br.readLine())!=null) {
+                linesInFile++;
+                editor.putString((line.split(",")[0] +","+ line.split(",")[1]), line.split(",")[2]);
+                editor.apply();
+                Log.d("Key,Value", line);
             }
             br.close();
         } catch (FileNotFoundException e) {
@@ -629,6 +645,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e){
             e.printStackTrace();
         }
+        Log.d("NumLine=",""+linesInFile);
     }
 
     @Override
