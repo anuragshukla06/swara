@@ -40,10 +40,14 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -359,6 +363,7 @@ public class MainActivity extends AppCompatActivity {
         requestQueue = Volley.newRequestQueue(this);
         initialiseUI();
         saveToFile();
+        readFromFile();
         onCreateFlag = false;
 
         mFilter = new IntentFilter();
@@ -589,13 +594,15 @@ public class MainActivity extends AppCompatActivity {
         folder.mkdirs();
         String path=folder+"/pref.txt";
         Log.d("Path is",path);
-        File f=new File(path);
         try {
-            FileOutputStream fos = new FileOutputStream(f);
+            FileWriter f=new FileWriter(path);
+            BufferedWriter bw = new BufferedWriter(f);
             for(Map.Entry<String,?> row : map.entrySet()){
-                fos.write((row.getKey()+","+row.getValue()).getBytes());
+                bw.write(row.getKey()+","+row.getValue());
+                bw.newLine();
             }
-            fos.close();
+            bw.flush();
+            bw.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e){
@@ -609,10 +616,14 @@ public class MainActivity extends AppCompatActivity {
         folder.mkdirs();
         String path=folder+"/pref.txt";
         Log.d("Path is",path);
-        File f=new File(path);
         try {
-            FileInputStream fis = new FileInputStream(f);
-
+            FileReader f=new FileReader(path);
+            BufferedReader br = new BufferedReader(f);
+            String line;
+            while((line=br.readLine())!=null){
+                Log.d("Key,Value",line);
+            }
+            br.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e){
