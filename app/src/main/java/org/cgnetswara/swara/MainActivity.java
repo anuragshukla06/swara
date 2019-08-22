@@ -1,7 +1,6 @@
 package org.cgnetswara.swara;
 
 import android.Manifest;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,18 +12,13 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
-import android.os.ParcelUuid;
-import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
@@ -37,7 +31,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -47,11 +40,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import net.vidageek.mirror.dsl.Mirror;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -59,10 +47,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -372,6 +358,7 @@ public class MainActivity extends AppCompatActivity {
         spWalletData = getSharedPreferences(WalletData,Context.MODE_PRIVATE);
         requestQueue = Volley.newRequestQueue(this);
         initialiseUI();
+        saveToFile();
         onCreateFlag = false;
 
         mFilter = new IntentFilter();
@@ -593,6 +580,44 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("Cash",amount);
         editor.apply();
         Log.d("Cash",spWalletData.getString("Cash","Error"));
+    }
+
+    public void saveToFile(){
+        Map<String,?> map=spWalletData.getAll();
+        String exstPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File folder = new File(exstPath+"/swararecordings");
+        folder.mkdirs();
+        String path=folder+"/pref.txt";
+        Log.d("Path is",path);
+        File f=new File(path);
+        try {
+            FileOutputStream fos = new FileOutputStream(f);
+            for(Map.Entry<String,?> row : map.entrySet()){
+                fos.write((row.getKey()+","+row.getValue()).getBytes());
+            }
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void readFromFile(){
+        String exstPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File folder = new File(exstPath+"/swararecordings");
+        folder.mkdirs();
+        String path=folder+"/pref.txt";
+        Log.d("Path is",path);
+        File f=new File(path);
+        try {
+            FileInputStream fis = new FileInputStream(f);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     @Override
