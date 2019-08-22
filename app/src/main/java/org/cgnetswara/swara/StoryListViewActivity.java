@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -37,7 +38,8 @@ public class StoryListViewActivity extends AppCompatActivity {
     RequestQueue requestQueue;
     StringRequest stringRequest;
     EditText searchInput;
-    ImageButton searchButton;
+    ImageButton searchButton,loadNewerButton,refershButton,loadOlderButton;
+    LinearLayout navButtons;
     private String phoneNumber="";
     private String option="";
     private int start;
@@ -94,11 +96,19 @@ public class StoryListViewActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.rView);
         searchInput = findViewById(R.id.editTextSearchInput);
         searchButton = findViewById(R.id.imageButtonSearch);
+        loadNewerButton=findViewById(R.id.loadNewerButton);
+        loadOlderButton=findViewById(R.id.loadOlderButton);
+        refershButton=findViewById(R.id.refreshButton);
+        navButtons=findViewById(R.id.linearLayout2);
         switch (option) {
             case "3":
                 searchButton.setVisibility(View.GONE);
                 searchInput.setVisibility(View.GONE);
-                url = getString(R.string.base_url)+"pblockswara/BULTOO/"+start+"/"+end;
+                loadOlderButton.setVisibility(View.GONE);
+                loadNewerButton.setVisibility(View.GONE);
+                refershButton.setVisibility(View.GONE);
+                navButtons.setVisibility(View.GONE);
+                url = getString(R.string.base_url)+"pblockswara/BULTOO/0/20";
                 break;
             case "2":
                 searchInput.setText(phoneNumber);
@@ -128,7 +138,7 @@ public class StoryListViewActivity extends AppCompatActivity {
                                 story.setCount(jsonStory.getString("duration"));
                                 story.setDatetime(jsonStory.getString("datetime"));
                                 story.setAudioFile(jsonStory.getString("audio_file"));
-                                if(url.equals("http://flask-aws-dev.ap-south-1.elasticbeanstalk.com/pblockswara/BULTOO/0/10")){
+                                if(url.equals("http://flask-aws-dev.ap-south-1.elasticbeanstalk.com/pblockswara/BULTOO/0/20")){
                                     story.setType("bultoo");
                                 }
                                 else{
@@ -138,7 +148,7 @@ public class StoryListViewActivity extends AppCompatActivity {
                                 storyList.add(story);
                                 storyAdapter.notifyDataSetChanged();
                             }
-                            if(url.equals("http://flask-aws-dev.ap-south-1.elasticbeanstalk.com/pblockswara/BULTOO/0/10")){
+                            if(url.equals("http://flask-aws-dev.ap-south-1.elasticbeanstalk.com/pblockswara/BULTOO/0/20")){
                                 storeStoriesOffline(array);
                             }
                         } catch (JSONException e) {
@@ -151,7 +161,7 @@ public class StoryListViewActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Story fetch volley", error.toString());
                         Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_LONG).show();
-                        if(url.equals("http://flask-aws-dev.ap-south-1.elasticbeanstalk.com/pblockswara/BULTOO/0/10")){
+                        if(url.equals("http://flask-aws-dev.ap-south-1.elasticbeanstalk.com/pblockswara/BULTOO/0/20")){
                             getStoriesOffline();
                         }
                     }

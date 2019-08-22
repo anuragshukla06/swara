@@ -28,7 +28,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
 
     public class StoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        final TextView textViewTitle, textViewDatetime;
+        final TextView textViewTitle, textViewDatetime,textViewRupeeSymbol;
         final ImageButton imageButtonShare;
         final StoryAdapter storyAdapter;
 
@@ -46,6 +46,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             context_adapter=itemView.getContext();
             textViewTitle = (TextView)itemView.findViewById(R.id.piDesc);
             imageButtonShare=itemView.findViewById(R.id.piShare);
+            textViewRupeeSymbol=itemView.findViewById(R.id.piRupeeSymbol);
             textViewDatetime = (TextView)itemView.findViewById(R.id.piDatetime);
             itemView.setOnClickListener(this);
             this.storyAdapter=adapter;
@@ -102,6 +103,14 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
                 shareStory(story.getId(),story.getType());
             }
         });
+        switch(story.getType()){
+            case "bultoo":
+                holder.textViewRupeeSymbol.setVisibility(View.VISIBLE);
+                break;
+            case "normal":
+                holder.textViewRupeeSymbol.setVisibility(View.INVISIBLE);
+                break;
+        }
     }
 
     @Override
