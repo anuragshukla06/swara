@@ -554,7 +554,7 @@ public class MainActivity extends AppCompatActivity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.d("Disconnected: ", "" + device.getAddress());
 
-                if (device.getAddress().equals(mDeviceAddress)  || (timeWhenDisconnected - timeStartWhenConnected) > 10) {
+                if (device.getAddress().equals(mDeviceAddress)  && (timeWhenDisconnected - timeStartWhenConnected) > 10) {
                     String key=mDeviceAddress+","+problemId;
                     Log.d("Key: ",key);
                     switch(spStoryShare.getString(key,"-1")){
