@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean numberOk = false, operatorOk = false;
     Boolean onCreateFlag = true;
     public static final String BULTOO_FILE = "org.cgnetswara.swara.BULTOO_FILE";
-    String[] opArray = {"-", "BSNL", "JO", "AR", "VF", "RC", "RG", "AIRCEL", "ID"};//Caution! Make sure this array is congruent to R.array.operator_array
+    String[] opArray = {"-", "AC", "AR", "B", "ID", "JIO", "MT", "M", "DC", "DG", "RC", "RG", "UN", "VC"};//Caution! Make sure this array is congruent to R.array.operator_array
     private String rechargePhoneNumber="",rechargeOperator="",rechargeAmount="";
 
     private void addPermission(List<String> permissionsList, String permission) {
