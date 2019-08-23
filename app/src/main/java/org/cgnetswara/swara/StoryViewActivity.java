@@ -396,7 +396,12 @@ public class StoryViewActivity extends AppCompatActivity {
 
 
     public void downloadStory(View view) {
-        String url = "http://cgnetswara.org/audio/"+problem_id+".mp3";
+        String url;
+        if(type.equals("normal")) {
+            url = "http://cgnetswara.org/audio/" + problem_id + ".mp3";
+        }else{
+            url="https://cgstories.s3.ap-south-1.amazonaws.com/"+problem_id+".mp3";
+        }
         DownloadManager.Request r = new DownloadManager.Request(Uri.parse(url));
         r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "CGSwaraStory_"+problem_id+".mp3");
         r.allowScanningByMediaScanner();
