@@ -202,7 +202,7 @@ public class StoryListViewActivity extends AppCompatActivity {
             story.setText(sp2.getString("problem_text_"+i,""));
             story.setCount(sp2.getString("duration_"+i,""));
             story.setDatetime(sp2.getString("datetime_"+i,""));
-            story.setDatetime(sp2.getString("audio_file_"+i,""));
+            story.setAudioFile(sp2.getString("audio_file_"+i,""));
             story.setAccessingUser(phoneNumber);
             story.setType("bultoo");
             storyList.add(story);
