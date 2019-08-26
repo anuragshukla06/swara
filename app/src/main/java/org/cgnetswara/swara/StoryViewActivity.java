@@ -315,9 +315,14 @@ public class StoryViewActivity extends AppCompatActivity {
         fileLocation=Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS+"/CGSwaraStory_"+problem_id+".mp3";
         Log.d("P_Guessed_Location",fileLocation);
         File f= new File(fileLocation);
+        if(!f.exists()){
+            fileLocation="/storage/emulated/0/bluetooth/CGSwaraStory_"+problem_id+".mp3";
+            f= new File(fileLocation);
+        }
         playStoryButton=findViewById(R.id.imageButtonPlayStory);
         seekBarProgress=findViewById(R.id.seekBar);
         downloadButton=findViewById(R.id.buttonDownload);
+        downloadButton.setEnabled(true);
         if(f.exists()){
             playStoryButton.setVisibility(View.VISIBLE);
             seekBarProgress.setVisibility(View.VISIBLE);
@@ -397,6 +402,7 @@ public class StoryViewActivity extends AppCompatActivity {
 
     public void downloadStory(View view) {
         String url;
+        downloadButton.setEnabled(false);
         if(type.equals("normal")) {
             url = "http://cgnetswara.org/audio/" + problem_id + ".mp3";
         }else{

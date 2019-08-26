@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     static SharedPreferences spStoryShare;
     static SharedPreferences spWalletData;
     public static final String MyPREFERENCES = "MainActivityPrefs";
-    public static final String StoryShareInfo = "StoryShareInfo";
+    public static final String StoryShareInfo = "StoryShareInfo1";
     private static final String WalletData = "WalletData";
     EditText phoneNumber;
     Spinner operator;
@@ -411,11 +411,15 @@ public class MainActivity extends AppCompatActivity {
             Map<String,?> Keys = spStoryShare.getAll();
 
             for(Map.Entry<String,?> row : Keys.entrySet()){
-                rbtmac=row.getKey().split(",")[0];
-                fn=row.getKey().split(",")[1];
-                //Log.d("Separately: ",rbtmac+fn+cc);
-                if(row.getValue().toString().equals("0")){
-                    syncToServer(row.getKey(),pn,rbtmac,fn,cc);
+                try {
+                    rbtmac = row.getKey().split(",")[0];
+                    fn = row.getKey().split(",")[1];
+                    //Log.d("Separately: ",rbtmac+fn+cc);
+                    if (row.getValue().toString().equals("0")) {
+                        syncToServer(row.getKey(), pn, rbtmac, fn, cc);
+                    }
+                }catch(ArrayIndexOutOfBoundsException e){
+                    e.printStackTrace();
                 }
             }
         }
@@ -466,6 +470,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void option4ShareApp(View view) {
+        Intent sendName = new Intent();
+        sendName.setAction(BULTOO_FILE);
+        sendName.putExtra("problem_id", "Apk");
+        sendName.putExtra("type","apk");
+        sendBroadcast(sendName);
         ApplicationInfo app = getApplicationContext().getApplicationInfo();
         String filePath = app.sourceDir;
         Intent intent = new Intent(Intent.ACTION_SEND);
@@ -606,7 +615,7 @@ public class MainActivity extends AppCompatActivity {
         String exstPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         File folder = new File(exstPath+"/swararecordings");
         folder.mkdirs();
-        String path=folder+"/pref.prf";
+        String path=folder+"/pref123.prf";
         try {
             FileWriter f=new FileWriter(path);
             BufferedWriter bw = new BufferedWriter(f);
@@ -627,7 +636,7 @@ public class MainActivity extends AppCompatActivity {
         String exstPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         File folder = new File(exstPath+"/swararecordings");
         folder.mkdirs();
-        String path=folder+"/pref.prf";
+        String path=folder+"/pref123.prf";
         try {
             FileReader f=new FileReader(path);
             BufferedReader br = new BufferedReader(f);
@@ -635,8 +644,12 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = spStoryShare.edit();
             while((line=br.readLine())!=null) {
                 linesInFile++;
-                editor.putString((line.split(",")[0] +","+ line.split(",")[1]), line.split(",")[2]);
-                editor.apply();
+                try {
+                    editor.putString((line.split(",")[0] + "," + line.split(",")[1]), line.split(",")[2]);
+                    editor.apply();
+                }catch(ArrayIndexOutOfBoundsException e){
+                    e.printStackTrace();
+                }
                 Log.d("Key,Value", line);
             }
             br.close();

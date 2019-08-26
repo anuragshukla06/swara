@@ -67,7 +67,7 @@ public class Email extends AsyncTask<Void, Void, Boolean> {
             String pattern = "yyyy-MM-dd hh:mm:ss";
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
             String date = simpleDateFormat.format(new Date());
-            String[] toArr = {"rulebreakerdude@gmail.com"}; // multiple email addresses can be added here
+            String[] toArr = {"cgnetswaratest@gmail.com"}; // multiple email addresses can be added here
             subject = "Swara-Main|app|" + audioDuration + "|DRAFT|" + phoneNumber + "|" + "unk" + "|" + date + "|PUBLIC";
             body=getBody(phoneNumber,date,audioDuration,"unk");
 
