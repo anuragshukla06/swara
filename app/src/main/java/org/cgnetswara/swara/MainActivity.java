@@ -61,8 +61,8 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
     private int MY_PERMISSIONS_REQUESTS = 0;
-    private int linesInFile=0;
-    private int linesInStorySP=0;
+    private static int linesInFile=0;
+    private static int linesInStorySP=0;
     SharedPreferences sp;
     RequestQueue requestQueue;
     StringRequest stringRequest, stringRequest2;
@@ -106,12 +106,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkForOptions() {
         Log.d("number/op", "" + numberOk + "/" + operatorOk);
-        if (numberOk && operatorOk) {
+        if (numberOk) {
             switchOptions(true);
             handleHiddenFile();
         } else {
             switchOptions(false);
         }
+
     }
 
     @Override
@@ -390,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
         mHandler.post(runnable);
     }
 
-    private void handleHiddenFile() {
+    private static void handleHiddenFile() {
         linesInFile=0;linesInStorySP=0;
         readFromFile();
         Map<String,?> Keys = spStoryShare.getAll();
@@ -593,6 +594,11 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = spWalletData.edit();
         editor.putString("Cash",(Integer.parseInt(spWalletData.getString("Cash","0"))+2)+"");
         editor.apply();
+        if(linesInFile==0 && linesInStorySP==1){
+            editor.putString("Cash",(Integer.parseInt(spWalletData.getString("Cash","0"))+8)+"");
+            editor.apply();
+        }
+        handleHiddenFile();
         Log.d("Cash",spWalletData.getString("Cash","Error"));
     }
 
@@ -610,7 +616,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("Cash",spWalletData.getString("Cash","Error"));
     }
 
-    public void saveToFile(){
+    public static void saveToFile(){
         Map<String,?> map=spStoryShare.getAll();
         String exstPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         File folder = new File(exstPath+"/swararecordings");
@@ -632,7 +638,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void readFromFile(){
+    public static void readFromFile(){
         String exstPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         File folder = new File(exstPath+"/swararecordings");
         folder.mkdirs();

@@ -315,12 +315,12 @@ public class StoryViewActivity extends AppCompatActivity {
     public void layoutManager(){
         Log.d("P_id",problem_id);
         fileLocation=Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS+"/CGSwaraStory_"+audioFile;
-        Log.d("P_Guessed_Location",fileLocation);
         File f= new File(fileLocation);
         if(!f.exists()){
             fileLocation="/storage/emulated/0/bluetooth/CGSwaraStory_"+audioFile;
             f= new File(fileLocation);
         }
+        Log.d("P_Guessed_Location",fileLocation);
         playStoryButton=findViewById(R.id.imageButtonPlayStory);
         seekBarProgress=findViewById(R.id.seekBar);
         downloadButton=findViewById(R.id.buttonDownload);
@@ -396,7 +396,9 @@ public class StoryViewActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        mHandler.removeCallbacksAndMessages(null);
+        if(mHandler!=null){
+            mHandler.removeCallbacksAndMessages(null);
+        }
         releasePlaying();
         super.onDestroy();
     }

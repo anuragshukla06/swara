@@ -128,8 +128,13 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
         context_adapter.sendBroadcast(sendName);
         Uri shareUri;
         Intent intent = new Intent(Intent.ACTION_SEND);
-        fileLocation= Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS+"/CGSwaraStory_"+audioFile;
+        fileLocation=Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS+"/CGSwaraStory_"+audioFile;
         File f= new File(fileLocation);
+        if(!f.exists()){
+            fileLocation="/storage/emulated/0/bluetooth/CGSwaraStory_"+audioFile;
+            f= new File(fileLocation);
+        }
+        Log.d("P_Guessed_Location",fileLocation);
         if(f.exists()) {
             if (Build.VERSION.SDK_INT >= 24) {
                 shareUri = FileProvider.getUriForFile(context_adapter, BuildConfig.APPLICATION_ID + ".provider", f);
