@@ -288,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
         op3 = findViewById(R.id.button3);
         op4 = findViewById(R.id.button4);//Phone Number and operator info
 
-        if (sp.contains("phone_number") && sp.contains("operator")) {
+        if (sp.contains("phone_number")) {
             phoneNumber.setText(sp.getString("phone_number", "DNE"));
             operator.setSelection(Integer.parseInt(sp.getString("operator", "0")));
             numberOk = true;
