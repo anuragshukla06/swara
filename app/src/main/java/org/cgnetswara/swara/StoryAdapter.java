@@ -39,6 +39,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
         public static final String STORY_DATETIME = "datetime";
         public static final String ACCESSINGUSER = "accessing_user";
         public static final String STORY_TYPE = "type";
+        public static final String AUDIO_FILE = "audio_file";
 
 
         StoryViewHolder(View itemView, StoryAdapter adapter) {
@@ -65,6 +66,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
             pv.putExtra(STORY_DATETIME,story.getDatetime());
             pv.putExtra(ACCESSINGUSER,story.getAccessingUser());
             pv.putExtra(STORY_TYPE,story.getType());
+            pv.putExtra(AUDIO_FILE,story.getAudioFile());
 
             context_adapter.startActivity(pv);
         }
@@ -100,7 +102,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
         holder.imageButtonShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                shareStory(story.getId(),story.getType());
+                shareStory(story.getId(),story.getType(), story.getAudioFile());
             }
         });
         switch(story.getType()){
@@ -118,7 +120,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
         return storyList.size();
     }
 
-    public void shareStory(String problem_id, String type){
+    public void shareStory(String problem_id, String type, String audioFile){
         Intent sendName = new Intent();
         sendName.setAction(BULTOO_FILE);
         sendName.putExtra("problem_id", problem_id);
@@ -126,7 +128,7 @@ public class StoryAdapter extends RecyclerView.Adapter<StoryAdapter.StoryViewHol
         context_adapter.sendBroadcast(sendName);
         Uri shareUri;
         Intent intent = new Intent(Intent.ACTION_SEND);
-        fileLocation= Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS+"/CGSwaraStory_"+problem_id+".mp3";
+        fileLocation= Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS+"/CGSwaraStory_"+audioFile;
         File f= new File(fileLocation);
         if(f.exists()) {
             if (Build.VERSION.SDK_INT >= 24) {

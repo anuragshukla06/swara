@@ -64,13 +64,14 @@ public class StoryViewActivity extends AppCompatActivity {
     private CommentAdapter commentAdapter;
     private List<MessageModel> commentList=new ArrayList<>();
     Typeface Hindi;
-    String username, problem_id, type;
+    String username, problem_id, type, audioFile;
     MediaPlayer storyPlayer;
     ImageButton playStoryButton;
     String fileLocation;
     Button downloadButton;
     SeekBar seekBarProgress;
     int audioDuration;
+    Handler mHandler;
     boolean playState=true;
     public static final String BULTOO_FILE = "org.cgnetswara.swara.BULTOO_FILE";
 
@@ -131,6 +132,7 @@ public class StoryViewActivity extends AppCompatActivity {
         problem_id = endpoint.getStringExtra("story_id");
         type=endpoint.getStringExtra("type");
         username = endpoint.getStringExtra("accessing_user");
+        audioFile=endpoint.getStringExtra("audio_file");
         final TextView problem_desc = (TextView) findViewById(R.id.apvDesc);
         final TextView problem_text = (TextView) findViewById(R.id.apvText);
         final TextView problem_dt = (TextView) findViewById(R.id.apvDatetime);
@@ -312,11 +314,11 @@ public class StoryViewActivity extends AppCompatActivity {
 
     public void layoutManager(){
         Log.d("P_id",problem_id);
-        fileLocation=Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS+"/CGSwaraStory_"+problem_id+".mp3";
+        fileLocation=Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS+"/CGSwaraStory_"+audioFile;
         Log.d("P_Guessed_Location",fileLocation);
         File f= new File(fileLocation);
         if(!f.exists()){
-            fileLocation="/storage/emulated/0/bluetooth/CGSwaraStory_"+problem_id+".mp3";
+            fileLocation="/storage/emulated/0/bluetooth/CGSwaraStory_"+audioFile;
             f= new File(fileLocation);
         }
         playStoryButton=findViewById(R.id.imageButtonPlayStory);
@@ -365,14 +367,14 @@ public class StoryViewActivity extends AppCompatActivity {
             //stopPlaying();
         }
 
-        final Handler mHandler = new Handler();
+        mHandler = new Handler();
         //Make sure you update Seekbar on UI thread
         try {
             StoryViewActivity.this.runOnUiThread(new Runnable() {
 
                 @Override
                 public void run() {
-                    if (storyPlayer!= null) {
+                    if (storyPlayer!= null && storyPlayer.isPlaying()) {
                         int mCurrentPosition = storyPlayer.getCurrentPosition()/1000;
                         //Log.d("position: ",""+mCurrentPosition);
                         seekBarProgress.setProgress(mCurrentPosition);
@@ -394,8 +396,9 @@ public class StoryViewActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        mHandler.removeCallbacksAndMessages(null);
         releasePlaying();
+        super.onDestroy();
     }
 
 
@@ -404,12 +407,12 @@ public class StoryViewActivity extends AppCompatActivity {
         String url;
         downloadButton.setEnabled(false);
         if(type.equals("normal")) {
-            url = "http://cgnetswara.org/audio/" + problem_id + ".mp3";
+            url = "http://cgnetswara.org/audio/" + audioFile;
         }else{
-            url="https://cgstories.s3.ap-south-1.amazonaws.com/"+problem_id+".mp3";
+            url="https://cgstories.s3.ap-south-1.amazonaws.com/"+audioFile;
         }
         DownloadManager.Request r = new DownloadManager.Request(Uri.parse(url));
-        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "CGSwaraStory_"+problem_id+".mp3");
+        r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "CGSwaraStory_"+audioFile);
         r.allowScanningByMediaScanner();
         r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         r.setVisibleInDownloadsUi(true);
