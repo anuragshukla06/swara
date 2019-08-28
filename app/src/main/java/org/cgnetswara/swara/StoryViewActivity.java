@@ -307,7 +307,6 @@ public class StoryViewActivity extends AppCompatActivity {
                 }
             });
 
-            String s = "wait a minute, i'm debugging";
         }
     }
 
@@ -385,6 +384,24 @@ public class StoryViewActivity extends AppCompatActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
+
+        seekBarProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(storyPlayer != null && fromUser){
+                    storyPlayer.seekTo(progress * 1000);
+                }
+            }
+        });
     }
 
     public void releasePlaying(){
