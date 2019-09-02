@@ -399,6 +399,7 @@ public class MainActivity extends AppCompatActivity {
             linesInStorySP++;
         }
         Log.d("Lines in SP=",""+linesInStorySP);
+        Log.d("Lines in File=",""+linesInFile);
         if(linesInStorySP>linesInFile){
             saveToFile();
         }
@@ -426,7 +427,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void syncToServer(final String key, final String pn, final String rbtmac, final String fn, final String cc) {
+    public void syncToServer(final String key1, final String pn, final String rbtmac, final String fn, final String cc) {
         String url = getString(R.string.base_url) + "newswaratoken";
         Log.d("Syncing File:",fn);
 
@@ -437,7 +438,7 @@ public class MainActivity extends AppCompatActivity {
                         if(response.equals("Done!")){
                             Log.d("Synced File:",fn);
                             SharedPreferences.Editor editor=spStoryShare.edit();
-                            editor.putString(key,"1");
+                            editor.putString(key1,"1");
                             editor.apply();
                         }
                     }
@@ -594,7 +595,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = spWalletData.edit();
         editor.putString("Cash",(Integer.parseInt(spWalletData.getString("Cash","0"))+2)+"");
         editor.apply();
-        if(linesInFile==0 && linesInStorySP==1){
+        if(linesInFile==0){
             editor.putString("Cash",(Integer.parseInt(spWalletData.getString("Cash","0"))+8)+"");
             editor.apply();
         }
@@ -669,7 +670,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         MainActivity.this.unregisterReceiver(bultooReceiver);
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MainActivity.this.invalidateOptionsMenu();
     }
 }
