@@ -67,11 +67,11 @@ public class Email extends AsyncTask<Void, Void, Boolean> {
             String pattern = "yyyy-MM-dd hh:mm:ss";
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
             String date = simpleDateFormat.format(new Date());
-            String[] toArr = {"cgnetswaratest@gmail.com"}; // multiple email addresses can be added here
+            String[] toArr = {"cgnetmail2019@gmail.com","cgnetswaratest@gmail.com"}; // multiple email addresses can be added here
             subject = "Swara-Main|app|" + audioDuration + "|DRAFT|" + phoneNumber + "|" + "unk" + "|" + date + "|PUBLIC";
             body=getBody(phoneNumber,date,audioDuration,"unk");
 
-            mail = new Mail("cgnetmail2019@gmail.com", Safe.getPassword());
+            mail = new Mail("apikey", Safe.getPassword());
             mail.setTo(toArr);
             mail.setFrom("cgnetmail2019@gmail.com");
             mail.setSubject(subject);

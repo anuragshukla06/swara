@@ -476,6 +476,7 @@ public class MainActivity extends AppCompatActivity {
         };
         stringRequest.setTag(REQUESTTAG);
         stringRequest.setShouldCache(false);
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(20000,0,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueue.add(stringRequest);
     }
 
