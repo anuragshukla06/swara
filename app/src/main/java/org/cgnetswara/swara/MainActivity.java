@@ -143,7 +143,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 rechargePhoneNumber = input.getText().toString();
-                buildDialogOperator();
+                if(rechargePhoneNumber.length()!=10){
+                    buildDialogPhoneNumber();
+                }else {
+                    buildDialogOperator();
+                }
             }
         });
         builder.setNegativeButton("रद्द", new DialogInterface.OnClickListener() {
@@ -179,7 +183,11 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("ठीक", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                buildDialogAmount();
+                if(rechargeOperator.equals("-")){
+                    buildDialogOperator();
+                }else{
+                    buildDialogAmount();
+                }
             }
         });
         builder.setNegativeButton("रद्द", new DialogInterface.OnClickListener() {
