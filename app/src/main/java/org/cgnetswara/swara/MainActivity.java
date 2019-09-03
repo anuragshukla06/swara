@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 String walletAmount=spWalletData.getString("Cash","0");
                 Log.d("Finally: ",rechargePhoneNumber+rechargeOperator+rechargeAmount);
-                if(Integer.parseInt(walletAmount)>Integer.parseInt(rechargeAmount)) {
+                if(Integer.parseInt(walletAmount)>=Integer.parseInt(rechargeAmount)) {
                     sendTopUpRequestToServer(walletAmount, rechargePhoneNumber, rechargeOperator, rechargeAmount);
                 }
             }
