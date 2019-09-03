@@ -19,6 +19,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
@@ -51,6 +52,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -139,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setTitle("कृपया 10 अंकों का फोन नंबर दर्ज करें");
         final EditText input = new EditText(this);
         builder.setView(input);
+        input.setInputType(InputType.TYPE_CLASS_PHONE);
         builder.setPositiveButton("ठीक", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -203,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("कृपया रिचार्ज राशि दर्ज करें");
         final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_PHONE);
         builder.setView(input);
         builder.setPositiveButton("ठीक", new DialogInterface.OnClickListener() {
             @Override
