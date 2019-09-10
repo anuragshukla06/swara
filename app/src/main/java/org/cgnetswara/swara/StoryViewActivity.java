@@ -4,6 +4,7 @@ import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -327,7 +328,7 @@ public class StoryViewActivity extends AppCompatActivity {
         if(f.exists()){
             playStoryButton.setVisibility(View.VISIBLE);
             seekBarProgress.setVisibility(View.VISIBLE);
-            downloadButton.setVisibility(View.INVISIBLE);
+            downloadButton.setText("पुनः डाउनलोड करें ");
         }
         else{
             downloadButton.setVisibility(View.VISIBLE);
@@ -425,12 +426,18 @@ public class StoryViewActivity extends AppCompatActivity {
     public void downloadStory(View view) {
         String url;
         downloadButton.setEnabled(false);
+        downloadButton.setBackgroundColor(Color.LTGRAY);
         if(type.equals("normal")) {
             url = "http://cgnetswara.org/audio/" + audioFile;
         }else{
             url="https://cgstories.s3.ap-south-1.amazonaws.com/"+audioFile;
         }
         DownloadManager.Request r = new DownloadManager.Request(Uri.parse(url));
+        String tempcheck=Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS+"/CGSwaraStory_"+audioFile;
+        File temp_f= new File(tempcheck);
+        if(temp_f.exists()){
+            temp_f.delete();
+        }
         r.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "CGSwaraStory_"+audioFile);
         r.allowScanningByMediaScanner();
         r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);

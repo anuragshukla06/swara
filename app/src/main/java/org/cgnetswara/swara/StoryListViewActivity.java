@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -168,6 +169,7 @@ public class StoryListViewActivity extends AppCompatActivity {
                 });
         stringRequest.setTag(REQUESTTAG);
         stringRequest.setShouldCache(false);
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(5000,0,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueue= Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
         storyAdapter.notifyDataSetChanged();

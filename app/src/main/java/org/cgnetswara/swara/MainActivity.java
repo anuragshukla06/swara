@@ -443,17 +443,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void syncToServer(final String key1, final String pn, final String rbtmac, final String fn, final String cc) {
         String url = getString(R.string.base_url) + "newswaratoken";
-        Log.d("Syncing File:",fn);
+        final SharedPreferences.Editor editor=spStoryShare.edit();
+        Log.d("Syncing File:",key1);
 
         stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         if(response.equals("Done!")){
-                            Log.d("Synced File:",fn);
-                            SharedPreferences.Editor editor=spStoryShare.edit();
+                            Log.d("Synced File:",key1);
                             editor.putString(key1,"1");
-                            editor.apply();
+                            editor.commit();
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -476,7 +476,7 @@ public class MainActivity extends AppCompatActivity {
         };
         stringRequest.setTag(REQUESTTAG);
         stringRequest.setShouldCache(false);
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(20000,0,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(10000,0,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueue.add(stringRequest);
     }
 
@@ -580,7 +580,7 @@ public class MainActivity extends AppCompatActivity {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.d("Disconnected: ", "" + device.getAddress());
 
-                if (device.getAddress().equals(mDeviceAddress)  && (timeWhenDisconnected - timeStartWhenConnected) > 10) {
+                if (device.getAddress().equals(mDeviceAddress)  && (timeWhenDisconnected - timeStartWhenConnected) > 10 && (type.equals("apk")||type.equals("normal")||type.equals("bultoo")) ) {
                     String key=mDeviceAddress+","+problemId;
                     Log.d("Key: ",key);
                     switch(spStoryShare.getString(key,"-1")){
@@ -611,7 +611,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("Cash",(Integer.parseInt(spWalletData.getString("Cash","0"))+2)+"");
         editor.apply();
         if(linesInFile==0){
-            editor.putString("Cash",(Integer.parseInt(spWalletData.getString("Cash","0"))+8)+"");
+            editor.putString("Cash",10+"");
             editor.apply();
         }
         handleHiddenFile();
@@ -667,8 +667,12 @@ public class MainActivity extends AppCompatActivity {
             while((line=br.readLine())!=null) {
                 linesInFile++;
                 try {
-                    editor.putString((line.split(",")[0] + "," + line.split(",")[1]), line.split(",")[2]);
-                    editor.apply();
+                    if(spStoryShare.contains( (line.split(",")[0] + "," + line.split(",")[1]) )){
+                        Log.d("Preventing ","Overwriting sync info");
+                    }else {
+                        editor.putString((line.split(",")[0] + "," + line.split(",")[1]), line.split(",")[2]);
+                        editor.apply();
+                    }
                 }catch(ArrayIndexOutOfBoundsException e){
                     e.printStackTrace();
                 }

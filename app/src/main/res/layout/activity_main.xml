@@ -85,7 +85,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
         android:onClick="option4ShareApp"
-        android:text="स्वर ऐप ब्लूटूथ​ से भेजें"
+        android:text="बुल्टू ऐप ब्लूटूथ​ से भेजें"
         android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
