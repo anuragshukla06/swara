@@ -179,13 +179,22 @@ public class StoryListViewActivity extends AppCompatActivity {
     private void addDefaultStories() {
         StoryModel story1=new StoryModel();
         story1.setId("def_story_hindi");
-        story1.setDesc("Test");
-        story1.setText("TestPlay");
+        story1.setDesc("CGNet का परिचय हिंदी में");
+        story1.setText(getString(R.string.hindi_desc));
         story1.setCount("600");
         story1.setDatetime("01 January");
         story1.setAudioFile("cgnet_parichay_in_hindi.mp3");
         story1.setType("bultoo");
+        StoryModel story2=new StoryModel();
+        story2.setId("def_story_gondi");
+        story2.setDesc("CGNet का परिचय गोंडी में");
+        story2.setText(getString(R.string.gondi_desc));
+        story2.setCount("600");
+        story2.setDatetime("01 January");
+        story2.setAudioFile("cgnet_parichay_in_gondi.mp3");
+        story2.setType("bultoo");
         storyList.add(story1);
+        storyList.add(story2);
     }
 
     public void storeStoriesOffline(JSONArray array){

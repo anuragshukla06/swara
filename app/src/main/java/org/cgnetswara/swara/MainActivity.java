@@ -322,7 +322,6 @@ public class MainActivity extends AppCompatActivity {
         requestQueue.add(stringRequest2);
     }
 
-
     private void initialiseUI() {
         phoneNumber = findViewById(R.id.editText);
         operator = findViewById(R.id.spinner);
