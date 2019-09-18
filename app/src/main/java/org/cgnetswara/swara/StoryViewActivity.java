@@ -316,6 +316,7 @@ public class StoryViewActivity extends AppCompatActivity {
         Log.d("P_id",problem_id);
         fileLocation=Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS+"/CGSwaraStory_"+audioFile;
         File f= new File(fileLocation);
+        Log.d("P_Guessed_Location",fileLocation);
         if(!f.exists()){
             fileLocation="/storage/emulated/0/bluetooth/CGSwaraStory_"+audioFile;
             f= new File(fileLocation);

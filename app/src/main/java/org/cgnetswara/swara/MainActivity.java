@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -113,10 +114,39 @@ public class MainActivity extends AppCompatActivity {
             switchOptions(true);
             handleHiddenFile();
             writeIdInFile();
+            makeMP3FromRawResource(R.raw.cgnet_parichay_in_hindi,"CGSwaraStory_cgnet_parichay_in_hindi.mp3");
+            makeMP3FromRawResource(R.raw.cgnet_parichay_in_gondi,"CGSwaraStory_cgnet_parichay_in_gondi.mp3");
         } else {
             switchOptions(false);
         }
 
+    }
+
+    private void makeMP3FromRawResource(int resId, String fileName) {
+        String exstPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/"+Environment.DIRECTORY_DOWNLOADS;
+        String path=exstPath+"/"+fileName;
+        File file = new File(path);
+        if(!file.exists()) {
+            try {
+                InputStream in;
+                OutputStream out = new FileOutputStream(file);
+                Resources resources=this.getResources();
+                in = resources.openRawResource(resId);
+                byte[] buf = new byte[1024];
+                int len;
+                try {
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
+                    in.close();
+                    out.close();
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

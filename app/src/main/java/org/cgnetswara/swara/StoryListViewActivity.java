@@ -151,6 +151,7 @@ public class StoryListViewActivity extends AppCompatActivity {
                             }
                             if(url.equals("http://flask-aws-dev.ap-south-1.elasticbeanstalk.com/pblockswara/BULTOO/0/20")){
                                 storeStoriesOffline(array);
+                                addDefaultStories();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -173,6 +174,18 @@ public class StoryListViewActivity extends AppCompatActivity {
         requestQueue= Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
         storyAdapter.notifyDataSetChanged();
+    }
+
+    private void addDefaultStories() {
+        StoryModel story1=new StoryModel();
+        story1.setId("def_story_hindi");
+        story1.setDesc("Test");
+        story1.setText("TestPlay");
+        story1.setCount("600");
+        story1.setDatetime("01 January");
+        story1.setAudioFile("cgnet_parichay_in_hindi.mp3");
+        story1.setType("bultoo");
+        storyList.add(story1);
     }
 
     public void storeStoriesOffline(JSONArray array){
