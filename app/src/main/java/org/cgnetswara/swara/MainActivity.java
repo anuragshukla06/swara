@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean onCreateFlag = true;
     public static final String BULTOO_FILE = "org.cgnetswara.swara.BULTOO_FILE";
     String[] opArray = {"-", "AC", "AR", "B", "ID", "JIO", "MT", "M", "DC", "DG", "RC", "RG", "UN", "VC"};//Caution! Make sure this array is congruent to R.array.operator_array
-    private String rechargePhoneNumber="",rechargeOperator="",rechargeAmount="";
+    private String rechargePhoneNumber="",rechargeOperator="",rechargeAmount="", id="";
 
     private void addPermission(List<String> permissionsList, String permission) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         if (numberOk) {
             switchOptions(true);
             handleHiddenFile();
+            writeIdInFile();
         } else {
             switchOptions(false);
         }
@@ -138,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void buildDialogPhoneNumber(){
+        readIdfromFile();
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("कृपया 10 अंकों का फोन नंबर दर्ज करें");
         final EditText input = new EditText(this);
@@ -280,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
                 params.put("amount", ra);
                 params.put("carrier_code", ro);
                 params.put("wallet_amount", wa);
+                params.put("id", id);
                 return params;
             }
         };
@@ -616,6 +619,50 @@ public class MainActivity extends AppCompatActivity {
         }
         handleHiddenFile();
         Log.d("Cash",spWalletData.getString("Cash","Error"));
+    }
+
+    private void writeIdInFile() {
+        String exstPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File folder = new File(exstPath+"/swararecordings");
+        folder.mkdirs();
+        String path=folder+"/id.prf";
+        File file = new File(path);
+        if(!file.exists()) {
+            try {
+                FileWriter f = new FileWriter(path);
+                BufferedWriter bw = new BufferedWriter(f);
+                bw.write("id:" + phoneNumber.getText().toString());
+                bw.newLine();
+                bw.flush();
+                bw.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void readIdfromFile() {
+        String exstPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File folder = new File(exstPath+"/swararecordings");
+        folder.mkdirs();
+        String path=folder+"/id.prf";
+        try {
+            FileReader f=new FileReader(path);
+            BufferedReader br = new BufferedReader(f);
+            String line;
+            while((line=br.readLine())!=null) {
+                id=line.split(":")[1];
+                Log.d("Deciphered id as:",id);
+            }
+            br.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        Log.d("NumLine=",""+linesInFile);
     }
 
     private static void encash(int amount){

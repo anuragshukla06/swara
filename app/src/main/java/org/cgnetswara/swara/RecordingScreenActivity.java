@@ -68,7 +68,7 @@ public class RecordingScreenActivity extends AppCompatActivity{
         acceptButton.setVisibility(View.INVISIBLE);
         chronometer.setVisibility(View.INVISIBLE);
         Intent data=getIntent();
-        phoneNumber.setText(data.getStringExtra("phone_number"));
+        //phoneNumber.setText(data.getStringExtra("phone_number"));
         try {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         } catch(NullPointerException e){
