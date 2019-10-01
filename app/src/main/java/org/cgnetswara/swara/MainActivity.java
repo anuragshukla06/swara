@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private static int linesInFile=0;
     private static int linesInStorySP=0;
     SharedPreferences sp;
+    boolean isRequestingRecharge=false;
     RequestQueue requestQueue;
     StringRequest stringRequest, stringRequest2;
     public static final String REQUESTTAG = "requesttag";
@@ -161,9 +162,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         String title = (String)item.getTitleCondensed();
-        if (title!=null && title.equals("रिचार्ज करे")) {
+        if (title!=null && title.equals("रिचार्ज करे") && !isRequestingRecharge) {
             buildDialogPhoneNumber();
             return true;
+        }
+        else if(title!=null && title.equals("रिचार्ज करे") && isRequestingRecharge){
+            buildBlockerDialog();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -283,12 +287,36 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
+    public void buildBlockerDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("कृपया कुछ समय प्रतीक्षा करें");
+        final TextView info = new TextView(this);
+        info.setGravity(Gravity.CENTER);
+        info.setText("कृपया कुछ समय प्रतीक्षा करें");
+        builder.setView(info);
+        builder.setPositiveButton("ठीक", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.setNegativeButton("रद्द", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+
     public void sendTopUpRequestToServer(final String wa, final String rpn, final String ro, final String ra){
+        isRequestingRecharge=true;
         String url = getString(R.string.base_url) + "swaraRecharge";
         stringRequest2 = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        isRequestingRecharge=false;
                         String newWalletAmount=response;
                         Log.d("Response is: ",response);
                         if(newWalletAmount.equals(wa) || newWalletAmount.equals( Integer.toString((Integer.parseInt(wa)-Integer.parseInt(ra))) )){
@@ -301,6 +329,7 @@ public class MainActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                isRequestingRecharge=false;
                 Log.d("Some","Network Error: ",error);
                 Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_LONG).show();
             }
@@ -318,8 +347,9 @@ public class MainActivity extends AppCompatActivity {
         };
         stringRequest2.setTag(REQUESTTAG);
         stringRequest2.setShouldCache(false);
-        stringRequest2.setRetryPolicy(new DefaultRetryPolicy(20000,0,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest2.setRetryPolicy(new DefaultRetryPolicy(60000,0,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueue.add(stringRequest2);
+
     }
 
     private void initialiseUI() {
@@ -407,6 +437,7 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             givePermissions();
         }
+
         sp = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         spStoryShare = getSharedPreferences(StoryShareInfo, Context.MODE_PRIVATE);
         spWalletData = getSharedPreferences(WalletData,Context.MODE_PRIVATE);
@@ -419,6 +450,7 @@ public class MainActivity extends AppCompatActivity {
         mFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         mFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         this.registerReceiver(bultooReceiver, mFilter);
+        //encash(-100);
 
 
         //Runnable
@@ -640,7 +672,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static void addInWallet() {
         SharedPreferences.Editor editor = spWalletData.edit();
-        editor.putString("Cash",(Integer.parseInt(spWalletData.getString("Cash","0"))+2)+"");
+        editor.putString("Cash",(Integer.parseInt(spWalletData.getString("Cash","0"))+5)+"");
         editor.apply();
         if(linesInFile==0){
             editor.putString("Cash",10+"");

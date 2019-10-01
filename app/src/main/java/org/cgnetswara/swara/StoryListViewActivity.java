@@ -165,6 +165,7 @@ public class StoryListViewActivity extends AppCompatActivity {
                         Toast.makeText(getBaseContext(), "Network Error", Toast.LENGTH_LONG).show();
                         if(url.equals("http://flask-aws-dev.ap-south-1.elasticbeanstalk.com/pblockswara/BULTOO/0/20")){
                             getStoriesOffline();
+                            addDefaultStories();
                         }
                     }
                 });
@@ -195,6 +196,7 @@ public class StoryListViewActivity extends AppCompatActivity {
         story2.setType("bultoo");
         storyList.add(story1);
         storyList.add(story2);
+        storyAdapter.notifyDataSetChanged();
     }
 
     public void storeStoriesOffline(JSONArray array){
@@ -232,6 +234,7 @@ public class StoryListViewActivity extends AppCompatActivity {
             storyList.add(story);
             storyAdapter.notifyDataSetChanged();
         }
+
     }
 
     @Override
